@@ -99,7 +99,7 @@
 
 > *如何从海量社交媒体评论中，**自动**提炼出可指导营销决策的消费者洞察，并针对不同细分人群**自动**生成高质量的营销文案？*
 
-它是申请**澳门大学（UM）数据分析师硕士**（人工智能方向 / 市场营销分析方向）所设计的跨方向能力证明项目，体现：
+它是面向「消费者洞察 + 营销自动化」领域的能力展示项目，体现：
 
 - **跨方向** —— 同一项目同时承载 AI 工程能力（LLM 集成、prompt 设计、JSON 结构化输出）与 Marketing Analytics 落地能力（情感、漏斗、ROI、细分、文案）
 - **可复现** —— 默认使用离线 Mock LLM，零 API 成本即可跑通
@@ -231,11 +231,13 @@ python scripts\run_pipeline.py
 
 ---
 
-## 🎯 申请澳大数据分析硕士的相关材料
+## 🎯 申请背景与配套材料
+
+> 本项目最初是作为申请 **澳门大学（UM）数据分析师硕士**——人工智能方向 / 市场营销分析方向的跨方向能力证明而构建。配套的 PS 模板、面试问答与课程对应关系已沉淀到 [`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)。
 
 - 📄 **[`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)** — 学术风格的技术报告，可放进作品集附录。
 - 📄 **[`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)** — PS 写作模板、关键词、面试 Q&A。
-- 📄 **[`docs/COURSE_MAPPING.md`](docs/COURSE_MAPPING.md)** — 项目能力 ↔ 澳大课程对应表。
+- 📄 **[`docs/COURSE_MAPPING.md`](docs/COURSE_MAPPING.md)** — 项目能力 ↔ 课程方向对应表。
 - 📄 **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — 系统架构图与数据流说明。
 
 ---
