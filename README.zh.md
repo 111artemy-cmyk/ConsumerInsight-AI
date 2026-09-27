@@ -148,7 +148,7 @@ ConsumerInsight-AI/
 
 ## 🚀 快速开始（Quickstart）
 
-> 适合零代码经验的同学。Windows / macOS / Linux 都可。
+> 已在Windows、macOS和Linux系统上测试。
 
 ### 1. 安装 Python（仅一次）
 
