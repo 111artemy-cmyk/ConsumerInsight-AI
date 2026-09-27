@@ -3,7 +3,7 @@ name = "consumerinsight-ai"
 version = "0.1.0"
 description = "A hybrid framework combining LLM and Marketing Analytics for automated consumer insights and campaign generation"
 authors = [
-    { name = "Xintong Wang", email = "your.email@example.com" },
+    { name = "Xintong Wang", email = "111artemy-cmyk@users.noreply.github.com" },
 ]
 readme = "README.md"
 requires-python = ">=3.10"

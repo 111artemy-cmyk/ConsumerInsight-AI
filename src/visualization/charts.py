@@ -134,7 +134,7 @@ def plot_sentiment_by_dimension(
         ax.text(val + offset, bar.get_y() + bar.get_height() / 2,
                 f"{val:+.2f}", va="center", ha=ha, fontsize=9)
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · N = 600 synthetic reviews")
+    _add_source(fig, "Source: ConsumerInsight-AI pipeline · Synthetic reviews (n configured per run)")
     return _save(fig, out_path)
 
 
