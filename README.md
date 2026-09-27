@@ -120,8 +120,7 @@ ConsumerInsight-AI/
 │   └── processed/                 # pipeline 输出的清洗后数据（gitignored）
 ├── docs/                          # 文档
 │   ├── TECHNICAL_REPORT.md        # 学术风格技术报告
-│   ├── APPLICATION_MATERIALS.md   # 申请素材包（PS 模板 + 面试 Q&A）
-│   ├── COURSE_MAPPING.md          # 项目能力 ↔ 澳大课程对应表
+│   ├── COURSE_MAPPING.md          # 项目能力 ↔ 课程方向对应表
 │   └── ARCHITECTURE.md            # 系统架构图与数据流
 ├── notebooks/                     # 零 LLM 的可读 notebook（面试讲解用）
 │   └── 01_consumer_basics.py
@@ -228,17 +227,6 @@ python scripts\run_pipeline.py
                ▼
    outputs/figures/*.png  +  outputs/reports/pipeline_report.md
 ```
-
----
-
-## 🎯 申请背景与配套材料
-
-> 本项目是申请 **澳门大学（UM）数据分析师硕士**——人工智能方向 / 市场营销分析方向的跨方向能力证明。配套的 PS 模板、面试问答与课程对应关系已沉淀到 [`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)。
-
-- 📄 **[`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)** — 学术风格的技术报告，含方法论与实验结果。
-- 📄 **[`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)** — PS 写作模板、关键词、面试 Q&A。
-- 📄 **[`docs/COURSE_MAPPING.md`](docs/COURSE_MAPPING.md)** — 项目能力 ↔ 课程方向对应表。
-- 📄 **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — 系统架构图与数据流说明。
 
 ---
 
