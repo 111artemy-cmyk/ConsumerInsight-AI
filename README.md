@@ -20,13 +20,13 @@
 
 | Metric | Value (typical run) |
 |---|---|
-| Reviews processed | **600** (multi-platform, synthetic) |
-| Audience segments identified | **4** (largest ~40% share) |
+| Reviews processed | **1500** (multi-platform, synthetic) |
+| Audience segments identified | **4** (largest ~37% share) |
 | Consumer personas | **4** (each with a `why_matters` strategic note) |
 | Core discussion topics | **5** (packaging · skin feel · sensitivity · shade · logistics) |
 | Marketing variants generated | **12** (3 channels × 4 personas) |
-| Predicted ROI peak | **~+15-20×** (highest segment) |
-| Largest funnel drop-off | **Repurchase stage** (~35-45% retention) |
+| Predicted ROI peak | **~+19-20×** (highest segment) |
+| Largest funnel drop-off | **Repurchase stage** (~40-45% retention) |
 | Visualisations | **7 charts** in `outputs/figures/` |
 | Markdown report | **`outputs/reports/pipeline_report.md`** |
 
@@ -81,8 +81,8 @@
 | Layer | Source | Notes |
 |---|---|---|
 | `data/raw/sample_reviews.csv` (50 seed reviews) | Hand-written | Authored in the Florasis brand voice, spanning 4 segments and 3 platforms |
-| `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Expands the 50 seeds into 600 reviews via templates + keyword substitution |
-| Pipeline outputs | Derived | All charts, reports and copy are computed from the 600 reviews above |
+| `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Expands the 50 seeds into 1500 reviews via templates + keyword substitution |
+| Pipeline outputs | Derived | All charts, reports and copy are computed from the 1500 reviews above |
 
 **To swap in your own data:**
 
@@ -190,7 +190,7 @@ The script will:
 
 1. Create / verify a virtual environment
 2. Install dependencies from `requirements.txt`
-3. Generate 600 sample reviews
+3. Generate 1500 sample reviews
 4. Run the full pipeline → `outputs/reports/pipeline_report.md` + 7 charts
 5. Print the command to launch the Streamlit demo
 

@@ -2,8 +2,8 @@
 
 Usage
 -----
-    python scripts/run_pipeline.py                # default: 600 synthetic reviews
-    python scripts/run_pipeline.py --n 1000       # more synthetic reviews
+    python scripts/run_pipeline.py                # default: 1500 synthetic reviews
+    python scripts/run_pipeline.py --n 2500       # more synthetic reviews
     python scripts/run_pipeline.py --csv path.csv # use your own CSV
     python scripts/run_pipeline.py --backend openai --model gpt-4o-mini
 """
@@ -27,7 +27,7 @@ from src.pipeline import run_full_pipeline  # noqa: E402
 def main() -> int:
     p = argparse.ArgumentParser(description="Run the ConsumerInsight-AI pipeline.")
     p.add_argument("--csv", type=Path, default=None, help="CSV file with reviews.")
-    p.add_argument("--n", type=int, default=600, help="Synthetic review count (default 600).")
+    p.add_argument("--n", type=int, default=1500, help="Synthetic review count (default 1500).")
     p.add_argument(
         "--backend",
         choices=["auto", "mock", "openai"],

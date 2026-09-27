@@ -64,7 +64,7 @@ def main() -> int:
     pipeline_cmd = [
         py,
         str(ROOT / "scripts" / "run_pipeline.py"),
-        "--n", "600",
+        "--n", "1500",
         "--backend", env.get("CI_LLM_BACKEND", "auto"),
         "--model", env.get("CI_LLM_MODEL", "gpt-4o-mini"),
     ]

@@ -42,7 +42,7 @@ st.caption(
 @st.cache_resource(show_spinner="Running full pipeline (first run only)...")
 def _run_pipeline_cached():
     return run_full_pipeline(
-        n_reviews=600,
+        n_reviews=1500,
         use_synthetic=True,
         llm_backend="auto",
         llm_model="gpt-4o-mini",
@@ -191,7 +191,7 @@ elif section == "10. 方法说明":
     st.header("方法说明")
     st.markdown(
         """
-        **数据**：内置 600 条合成评论，覆盖小红书 / 微博 / 天猫，
+        **数据**：内置 1500 条合成评论，覆盖小红书 / 微博 / 天猫，
         4 类细分人群（学生党 / 通勤族 / 成分党 / 精致妈妈）。
 
         **情感分析**：LLM 输出 JSON，每个维度返回 [-1, +1] 情感分 + 依据。

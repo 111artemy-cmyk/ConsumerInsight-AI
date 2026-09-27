@@ -6,12 +6,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
+sys.path.insert(0, str(ROOT))
 
 import pandas as pd  # noqa: E402
 
-from marketing_analytics import Segmenter  # noqa: E402
+from src.marketing_analytics import Segmenter  # noqa: E402
 
 
 def test_segmenter_runs_on_minimal_frame():

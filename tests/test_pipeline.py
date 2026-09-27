@@ -14,10 +14,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "src"
-sys.path.insert(0, str(SRC))
+sys.path.insert(0, str(ROOT))
 
-from pipeline import run_full_pipeline  # noqa: E402
+from src.pipeline import run_full_pipeline  # noqa: E402
 
 
 def test_pipeline_runs_with_mock_llm():

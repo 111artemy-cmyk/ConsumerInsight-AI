@@ -48,7 +48,7 @@ class PipelineArtifacts:
 
 def run_full_pipeline(
     *,
-    n_reviews: int = 600,
+    n_reviews: int = 1500,
     use_synthetic: bool = True,
     csv_path: Optional[Path] = None,
     llm_backend: str = "auto",

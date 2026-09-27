@@ -1,7 +1,7 @@
 """Data loading and synthetic sample-data generation.
 
 For reproducibility the project ships with a small but realistic
-synthetic dataset (~600 reviews across 小红书 / 微博 / 天猫).
+synthetic dataset (~1500 reviews across 小红书 / 微博 / 天猫).
 The generator is **deterministic** (controlled by ``RANDOM_SEED``) so
 that every reviewer running the pipeline sees the same numbers.
 
@@ -199,7 +199,7 @@ def _synthesize_one(
 
 
 def generate_synthetic_reviews(
-    n: int = 600,
+    n: int = 1500,
     product: str = "花西子 空气蜜粉",
     seed: int = RANDOM_SEED,
     start: str = "2025-06-01",
@@ -265,7 +265,7 @@ def load_reviews(
     csv_path: Optional[Path] = None,
     *,
     use_synthetic: bool = True,
-    n_synthetic: int = 600,
+    n_synthetic: int = 1500,
 ) -> pd.DataFrame:
     """Load review data from CSV, falling back to synthetic data.
 
