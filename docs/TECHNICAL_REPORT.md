@@ -4,7 +4,7 @@
 
 **Author**: Xintong Wang
 **Project Type**: Cross-disciplinary Portfolio Project
-**Target Programme**: Master of Science in Data Analytics — AI Track / Marketing Analytics Track, University of Macau
+**Target Programme**: Master of Science in Data Science — AI Track / Marketing Analytics Track, University of Macau
 **Last Updated**: September 2026
 
 ---
@@ -55,7 +55,7 @@ Two trends motivate this work:
   classical analytics into a single, reproducible pipeline.
 
 The dual-track *AI / Marketing Analytics* specialisation in UM's MSc
-in Data Analytics is precisely the intersection this project addresses.
+in Data Science is precisely the intersection this project addresses.
 
 ## 3. System Architecture
 
@@ -191,7 +191,7 @@ funnel diagnostics, ROI estimates, multi-channel copy) that bridge the
 gap between academic ML and the day-to-day practice of growth
 marketing. It is a concrete piece of evidence that the author can work
 across both the **AI** and the **Marketing Analytics** dimensions of
-UM's MSc in Data Analytics.
+UM's MSc in Data Science.
 
 ## 8. References (selected)
 
