@@ -26,8 +26,9 @@ Thumbs.db
 *.log
 logs/
 
-# ----- Pipeline outputs (regenerable via run_pipeline.py) -----
-outputs/figures/
+# ----- Pipeline outputs -----
+# Figures are committed (they are the visual deliverable, ~3 MB total)
+# Reports + processed data are regenerable and kept out of the repo
 outputs/reports/
 data/processed/
 
