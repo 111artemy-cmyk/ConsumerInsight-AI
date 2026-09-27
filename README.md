@@ -24,10 +24,10 @@
 | 自动识别细分群 | **4 个**（最大约占 40%） |
 | 消费者 Persona | **4 张画像**（含 `why_matters` 战略说明） |
 | 核心话题 | **5 类**（包装 / 肤感 / 敏感肌 / 色号 / 物流） |
-| 自动生成营销文案 | **12 条**（每画像 × 3 渠道变体） |
+| 自动生成营销文案 | **12 条**（每画像 3 个渠道变体） |
 | 预测 ROI 峰值 | **约 +15-20 倍**（最高细分群） |
 | 漏斗最大流失点 | **Repurchase 阶段**（约 35-45% 留存） |
-| 可视化图表 | **7 张**（`outputs/figures/`，可直接引用） |
+| 可视化图表 | **7 张**（`outputs/figures/`） |
 | Markdown 报告 | **1 份**（`outputs/reports/pipeline_report.md`） |
 
 > 上表为典型运行值。具体数字随随机种子与合成数据浮动，每次跑 `python scripts/run_pipeline.py` 都会重新计算。
@@ -61,16 +61,16 @@
 | **核心语言** | Python 3.10+ |
 | **数据处理** | pandas, numpy |
 | **机器学习** | scikit-learn（KMeans · TF-IDF · Ridge 回归） |
-| **LLM 接口** | 可插拔 — Mock（默认 / 零成本）/ OpenAI / 智谱 GLM / DeepSeek / Moonshot |
-| **可视化** | matplotlib（出版级图表） |
+| **LLM 接口** | 可插拔 — Mock（默认）/ OpenAI / 智谱 GLM / DeepSeek / Moonshot |
+| **可视化** | matplotlib |
 | **Web Demo** | Streamlit |
-| **工程化** | pytest（单元测试） · pyproject.toml（打包） · GitHub Actions（CI-ready） |
+| **工程化** | pytest · pyproject.toml · GitHub Actions |
 
 ---
 
 ## 🗂️ Data Provenance（数据来源声明）
 
-> **本仓库的所有数据均为合成数据（Synthetic Data）**。目的是让 pipeline 在任何环境下 **100% 可复现**，无需任何 API key、数据合规审批或外部爬虫。
+> **本仓库的所有数据均为合成数据（Synthetic Data）**。目的是让 pipeline 在任何环境下 **100% 可复现**，零 API key、零合规审批。
 
 | 数据层 | 真实度 | 说明 |
 |---|---|---|
@@ -103,8 +103,8 @@
 
 它是面向「消费者洞察 + 营销自动化」领域的能力展示项目，体现：
 
-- **跨方向** —— 同一项目同时承载 AI 工程能力（LLM 集成、prompt 设计、JSON 结构化输出）与 Marketing Analytics 落地能力（情感、漏斗、ROI、细分、文案）
-- **可复现** —— 默认使用离线 Mock LLM，零 API 成本即可跑通
+- **跨方向** —— 同一项目同时承载 AI 工程能力（LLM 集成、prompt 设计、JSON 结构化输出）与 Marketing Analytics 落地能力（情感 / 漏斗 / ROI / 细分 / 文案）
+- **可复现** —— 默认使用离线 Mock LLM
 - **可升级** —— 一个环境变量切换到 OpenAI / 智谱 / DeepSeek
 - **可交互** —— 内置 Streamlit Dashboard，用户可直接点开体验
 - **可解释** —— 每一段分析都有可视化图表 + Markdown 报告 + insight 文本
@@ -124,13 +124,13 @@ ConsumerInsight-AI/
 │   ├── TECHNICAL_REPORT.md        # 学术风格技术报告
 │   ├── COURSE_MAPPING.md          # 项目能力 ↔ 课程方向对应表
 │   └── ARCHITECTURE.md            # 系统架构图与数据流
-├── notebooks/                     # 零 LLM 的可读 notebook（面试讲解用）
+├── notebooks/                     # 零 LLM 的可读 notebook
 │   └── 01_consumer_basics.py
 ├── outputs/
 │   ├── figures/                   # 7 张可视化图表（已 commit）
 │   └── reports/                   # Markdown 报告（gitignored，重新生成）
 ├── scripts/
-│   ├── run_pipeline.py            # 命令行入口
+│   ├── run_pipeline.py            # 入口
 │   ├── run_all.py                 # 一键运行（虚拟环境 + 依赖安装）
 │   └── generate_sample_data.py    # 单独生成示例数据
 ├── src/
@@ -141,7 +141,7 @@ ConsumerInsight-AI/
 │   ├── pipeline.py                # 主流程编排
 │   ├── data_loader.py             # 数据加载 / 合成
 │   └── config.py                  # 全局配置
-├── tests/                         # 单元测试（pytest）
+├── tests/                         # 单元测试
 ```
 
 ---
@@ -235,7 +235,7 @@ python scripts\run_pipeline.py
 ## 🧭 Roadmap（可选扩展方向）
 
 - [ ] 接入 RAG，让 Persona / 文案基于品牌知识库而非纯 prompt
-- [ ] 把 Mock LLM 替换为本地 7B 模型（Llama / Qwen），离线零成本再升级
+- [ ] 把 Mock LLM 替换为本地 7B 模型（Llama / Qwen）
 - [ ] Streamlit Cloud / Hugging Face Spaces 一键部署
 - [ ] A/B 模拟：with-AI vs without-AI 文案转化的对比实验
 - [ ] 真实数据接入：品牌方授权 / 商业评论 API
@@ -250,7 +250,7 @@ MIT —— see [`LICENSE`](LICENSE).
 
 ## 致谢
 
-本项目以教育与开源展示为目的。示例数据为程序化合成，模拟真实业务场景的语言分布与情感极性，**不涉及任何真实用户隐私**。
+本项目以教育与开源展示为目的。示例数据为程序化合成，不涉及任何真实用户隐私。
 
 ---
 
