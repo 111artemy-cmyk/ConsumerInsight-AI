@@ -14,6 +14,16 @@
 
 ---
 
+<a id="about-this-project"></a>
+
+## 👋 About this project
+
+Built from scratch by **Xintong Wang** (王欣桐), a sociology graduate applying to UM's MSc in Data Science with no prior Python or marketing background.
+
+The project reimplements a typical consumer-research workflow (sentiment → segmentation → funnel → ROI → copy) as a reproducible, LLM-augmented pipeline. Every chart, test, and chart label is written to be readable to a non-CS reviewer — and to the author herself when she revisits the code in six months.
+
+---
+
 <a id="project-at-a-glance"></a>
 
 ## 📊 Project at a Glance

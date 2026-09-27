@@ -81,7 +81,7 @@
 **如何换成你自己的真实数据：**
 
 1. 把你的真实评论写入 `data/raw/sample_reviews.csv`
-2. 字段保持一致：`review_id, platform, rating, text, age_range, gender, week`
+2. 字段保持一致：`review_id, platform, user_id, product, rating, text, timestamp, user_age_band, user_segment`
 3. 重新跑 `python scripts/run_pipeline.py` —— 所有图表、报告、文案自动基于新数据刷新
 
 **为什么用合成数据：**
