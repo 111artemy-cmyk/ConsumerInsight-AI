@@ -1,0 +1,50 @@
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ----- Virtual environments -----
+.venv/
+venv/
+env/
+ENV/
+
+# ----- IDE / Editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ----- Logs -----
+*.log
+logs/
+
+# ----- Pipeline outputs (regenerable via run_pipeline.py) -----
+outputs/figures/
+outputs/reports/
+data/processed/
+
+# ----- Environment files (never commit secrets) -----
+.env
+.env.local
+.env.*.local
+
+# ----- OS -----
+.Trashes
+.Spotlight-V100
+.fseventsd
+
+# ----- Jupyter -----
+.ipynb_checkpoints/
+
+# ----- Distribution -----
+build/
+dist/
+*.whl
