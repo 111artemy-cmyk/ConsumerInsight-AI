@@ -111,13 +111,12 @@
 
 > *How can we automatically distill consumer insights from a high volume of social-media reviews, and automatically generate high-quality marketing copy for each audience segment?*
 
-The framework demonstrates:
+Key properties:
 
-- **Cross-disciplinary scope** — the same project carries both AI engineering (LLM integration, prompt design, JSON-typed outputs) and marketing analytics (sentiment, funnel, ROI, segmentation, copy) capabilities
 - **Reproducible by default** — runs offline with the Mock LLM at zero cost
 - **One-variable upgrade** — swap to OpenAI / GLM / DeepSeek via a single environment variable
-- **Interactive** — includes a Streamlit Dashboard for hands-on exploration
-- **Explainable** — every analytical step is paired with a chart, a Markdown report, and an insight note
+- **Interactive** — Streamlit Dashboard for hands-on exploration
+- **Explainable** — every step is paired with a chart, a Markdown report, and an insight note
 
 ### What it does (8 steps)
 
