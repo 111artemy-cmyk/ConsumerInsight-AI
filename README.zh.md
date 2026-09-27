@@ -21,18 +21,18 @@
 | 维度 | 数量 / 结果（典型运行值） |
 |---|---|
 | 处理评论数 | **1500 条**（多平台合成） |
-| 自动识别细分群 | **4 个**（最大约占 40%） |
+| 自动识别细分群 | **4 个**（最大约占 37%） |
 | 消费者 Persona | **4 张画像**（含 `why_matters` 战略说明） |
 | 核心话题 | **5 类**（包装 / 肤感 / 敏感肌 / 色号 / 物流） |
 | 自动生成营销文案 | **12 条**（每画像 3 个渠道变体） |
-| 预测 ROI 峰值 | **约 +15-20 倍**（最高细分群） |
-| 漏斗最大流失点 | **Repurchase 阶段**（约 35-45% 留存） |
+| 预测 ROI 峰值 | **约 +19-20 倍**（最高细分群） |
+| 漏斗最大流失点 | **Repurchase 阶段**（约 40-45% 留存） |
 | 可视化图表 | **7 张**（`outputs/figures/`） |
 | Markdown 报告 | **1 份**（`outputs/reports/pipeline_report.md`） |
 
-> 上表为典型运行值。具体数字随随机种子与合成数据浮动，每次跑 `python scripts/run_pipeline.py` 都会重新计算。
+> 上表为默认参数下的典型运行值（`RANDOM_SEED=42` 写在 `src/config.py`）。修改种子或样本量即可观察方差。
 >
-> 跑通时间：**约 15-30 秒**（CPU，无 GPU 依赖）。详见 [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)。
+> 跑通时间：**约 5-10 秒**（CPU，无 GPU 依赖）。详见 [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)。
 
 ---
 
@@ -64,7 +64,7 @@
 | **LLM 接口** | 可插拔 — Mock（默认）/ OpenAI / 智谱 GLM / DeepSeek / Moonshot |
 | **可视化** | matplotlib |
 | **Web Demo** | Streamlit |
-| **工程化** | pytest · pyproject.toml · GitHub Actions |
+| **工程化** | pytest · pyproject.toml |
 
 ---
 
@@ -148,7 +148,7 @@ ConsumerInsight-AI/
 
 ## 🚀 快速开始（Quickstart）
 
-> 已在Windows、macOS和Linux系统上测试。
+> 设计支持Windows、macOS和Linux系统。
 
 ### 1. 安装 Python（仅一次）
 
