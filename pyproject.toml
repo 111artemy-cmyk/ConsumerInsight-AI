@@ -1,0 +1,20 @@
+[project]
+name = "consumerinsight-ai"
+version = "0.1.0"
+description = "A hybrid framework combining LLM and Marketing Analytics for automated consumer insights and campaign generation"
+authors = [
+    { name = "Xintong Wang", email = "your.email@example.com" },
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"" = ["*.csv", "*.json", "*.md"]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
