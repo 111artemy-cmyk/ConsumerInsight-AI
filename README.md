@@ -10,267 +10,274 @@
 [![Reproducible](https://img.shields.io/badge/reproducible-100%25-brightgreen)](#data-provenance)
 [![No API needed](https://img.shields.io/badge/API%20key-not%20required-orange)](#built-with)
 
-[English](#english-summary) · [项目简介](#项目简介)
+[中文版](README.zh.md) · [Project Overview](#project-overview)
 
 ---
 
-<a id="项目简介"></a>
+<a id="project-at-a-glance"></a>
 
-## 📊 项目一览（Project at a Glance）
+## 📊 Project at a Glance
 
-| 维度 | 数量 / 结果（典型运行值） |
+| Metric | Value (typical run) |
 |---|---|
-| 处理评论数 | **600 条**（多平台合成） |
-| 自动识别细分群 | **4 个**（最大约占 40%） |
-| 消费者 Persona | **4 张画像**（含 `why_matters` 战略说明） |
-| 核心话题 | **5 类**（包装 / 肤感 / 敏感肌 / 色号 / 物流） |
-| 自动生成营销文案 | **12 条**（每画像 3 个渠道变体） |
-| 预测 ROI 峰值 | **约 +15-20 倍**（最高细分群） |
-| 漏斗最大流失点 | **Repurchase 阶段**（约 35-45% 留存） |
-| 可视化图表 | **7 张**（`outputs/figures/`） |
-| Markdown 报告 | **1 份**（`outputs/reports/pipeline_report.md`） |
+| Reviews processed | **600** (multi-platform, synthetic) |
+| Audience segments identified | **4** (largest ~40% share) |
+| Consumer personas | **4** (each with a `why_matters` strategic note) |
+| Core discussion topics | **5** (packaging · skin feel · sensitivity · shade · logistics) |
+| Marketing variants generated | **12** (3 channels × 4 personas) |
+| Predicted ROI peak | **~+15-20×** (highest segment) |
+| Largest funnel drop-off | **Repurchase stage** (~35-45% retention) |
+| Visualisations | **7 charts** in `outputs/figures/` |
+| Markdown report | **`outputs/reports/pipeline_report.md`** |
 
-> 上表为典型运行值。具体数字随随机种子与合成数据浮动，每次跑 `python scripts/run_pipeline.py` 都会重新计算。
+> The numbers above are typical values; exact figures vary with the random seed and synthetic data, and are recomputed on every `python scripts/run_pipeline.py` run.
 >
-> 跑通时间：**约 15-30 秒**（CPU，无 GPU 依赖）。详见 [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)。
+> End-to-end runtime: **~15-30 seconds** on CPU. See [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md) for details.
 
 ---
 
-## 🎨 关键可视化（Key Visualizations）
+<a id="key-visualizations"></a>
 
-### 营销漏斗：从认知到复购的 5 阶段转化
+## 🎨 Key Visualizations
+
+### Marketing funnel — Awareness → Repurchase
 
 ![Funnel](outputs/figures/06_funnel.png)
 
-### 受众细分：4 个行为聚类
+### Audience segmentation — four behavioural clusters
 
 ![Segmentation](outputs/figures/03_segment_share.png)
 
-### 预测 ROI：每个细分群的预期回报
+### Predicted ROI — per segment
 
 ![ROI](outputs/figures/07_roi_by_segment.png)
 
-> 完整 7 张图见 [`outputs/figures/`](outputs/figures/)。每张图都带数据来源行 + 底部 insight 框（无 emoji、纯英文标签），可以直接引用 / 二次编辑。
+> All seven charts are in [`outputs/figures/`](outputs/figures/). Each chart carries a data-source line and a bottom insight box (English labels, no emoji).
 
 ---
+
+<a id="built-with"></a>
 
 ## 🛠️ Built with
 
-| 类别 | 工具 |
+| Category | Tools |
 |---|---|
-| **核心语言** | Python 3.10+ |
-| **数据处理** | pandas, numpy |
-| **机器学习** | scikit-learn（KMeans · TF-IDF · Ridge 回归） |
-| **LLM 接口** | 可插拔 — Mock（默认）/ OpenAI / 智谱 GLM / DeepSeek / Moonshot |
-| **可视化** | matplotlib |
-| **Web Demo** | Streamlit |
-| **工程化** | pytest · pyproject.toml · GitHub Actions |
+| **Language** | Python 3.10+ |
+| **Data** | pandas · numpy |
+| **ML** | scikit-learn (KMeans · TF-IDF · Ridge regression) |
+| **LLM backends** | Pluggable — Mock (default) · OpenAI · GLM · DeepSeek · Moonshot |
+| **Visualisation** | matplotlib |
+| **Web demo** | Streamlit |
+| **Engineering** | pytest · pyproject.toml · GitHub Actions |
 
 ---
 
-## 🗂️ Data Provenance（数据来源声明）
+<a id="data-provenance"></a>
 
-> **本仓库的所有数据均为合成数据（Synthetic Data）**。目的是让 pipeline 在任何环境下 **100% 可复现**，零 API key、零合规审批。
+## 🗂️ Data Provenance
 
-| 数据层 | 真实度 | 说明 |
+> **All data in this repository is synthetic.** The goal is full reproducibility on any machine — no API key, no compliance review, no scraping.
+
+| Layer | Source | Notes |
 |---|---|---|
-| `data/raw/sample_reviews.csv`（50 条种子） | 手写 | 按花西子品牌调性撰写的种子评论，覆盖 4 类细分群、3 个平台 |
-| `src/data_loader.py` 内的 `generate_synthetic_reviews()` | 自动合成 | 由 50 条种子 + 模板 + 关键词替换扩展到 600 条 |
-| Pipeline 输出 | 派生 | 全部基于上述 600 条合成评论计算 |
+| `data/raw/sample_reviews.csv` (50 seed reviews) | Hand-written | Authored in the Florasis brand voice, spanning 4 segments and 3 platforms |
+| `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Expands the 50 seeds into 600 reviews via templates + keyword substitution |
+| Pipeline outputs | Derived | All charts, reports and copy are computed from the 600 reviews above |
 
-**如何换成你自己的真实数据：**
+**To swap in your own data:**
 
-1. 把你的真实评论写入 `data/raw/sample_reviews.csv`
-2. 字段保持一致：`review_id, platform, rating, text, age_range, gender, week`
-3. 重新跑 `python scripts/run_pipeline.py` —— 所有图表、报告、文案自动基于新数据刷新
+1. Drop your real reviews into `data/raw/sample_reviews.csv`
+2. Keep the schema: `review_id, platform, rating, text, age_range, gender, week`
+3. Re-run `python scripts/run_pipeline.py` — every chart, report and copy regenerates automatically
 
-**为什么用合成数据：**
+**Why synthetic data:**
 
-- ✅ 零成本、零 API key、零合规风险
-- ✅ 任何 clone 仓库的人都能 1:1 复现
-- ✅ 焦点在 **方法论 + pipeline 工程**，而非数据本身
-- ✅ 与真实数据接口完全一致（plug-in 设计）
+- ✅ Zero cost · zero API key · zero compliance risk
+- ✅ Any clone of this repo reproduces the pipeline 1:1
+- ✅ Focus stays on **methodology and engineering**, not the data itself
+- ✅ Interface is identical to a real-data pipeline (plug-in design)
 
-> **验证方法**：删掉 `data/raw/sample_reviews.csv` 后重新跑 pipeline，会得到结构完全相同但内容不同的输出 —— 这证明**代码独立于数据**。
-
----
-
-## 📖 项目简介
-
-**ConsumerInsight-AI** 是一个端到端的「消费者洞察 + 营销内容生成」框架，把**大语言模型 (LLM)** 与**经典营销分析方法**整合到一条可一键运行的 pipeline 里，覆盖：
-
-> *如何从海量社交媒体评论中，**自动**提炼出可指导营销决策的消费者洞察，并针对不同细分人群**自动**生成高质量的营销文案？*
-
-它是面向「消费者洞察 + 营销自动化」领域的能力展示项目，体现：
-
-- **跨方向** —— 同一项目同时承载 AI 工程能力（LLM 集成、prompt 设计、JSON 结构化输出）与 Marketing Analytics 落地能力（情感 / 漏斗 / ROI / 细分 / 文案）
-- **可复现** —— 默认使用离线 Mock LLM
-- **可升级** —— 一个环境变量切换到 OpenAI / 智谱 / DeepSeek
-- **可交互** —— 内置 Streamlit Dashboard，用户可直接点开体验
-- **可解释** —— 每一段分析都有可视化图表 + Markdown 报告 + insight 文本
+> **Verification trick:** delete `data/raw/sample_reviews.csv` and re-run the pipeline — you get structurally identical but textually different output. The code is independent of the data.
 
 ---
 
-## 📁 目录结构
+<a id="project-overview"></a>
+
+## 📖 Project Overview
+
+**ConsumerInsight-AI** is an end-to-end framework that combines **large language models** with classical **marketing analytics** techniques to extract consumer insights from review text and generate persona-targeted marketing copy.
+
+**The problem it solves:**
+
+> *How can we automatically distill consumer insights from a high volume of social-media reviews, and automatically generate high-quality marketing copy for each audience segment?*
+
+The framework demonstrates:
+
+- **Cross-disciplinary scope** — the same project carries both AI engineering (LLM integration, prompt design, JSON-typed outputs) and marketing analytics (sentiment, funnel, ROI, segmentation, copy) capabilities
+- **Reproducible by default** — runs offline with the Mock LLM at zero cost
+- **One-variable upgrade** — swap to OpenAI / GLM / DeepSeek via a single environment variable
+- **Interactive** — includes a Streamlit Dashboard for hands-on exploration
+- **Explainable** — every analytical step is paired with a chart, a Markdown report, and an insight note
+
+### What it does (8 steps)
+
+1. **Multi-aspect sentiment scoring** — 6 product-experience dimensions
+2. **Topic extraction** — 5 themes, LLM + TF-IDF cross-check
+3. **Persona generation** — 4 personas, KMeans + LLM
+4. **Audience segmentation** — KMeans on TF-IDF + behavioural features
+5. **Trend detection** — weekly aggregation + linear slope
+6. **Soft conversion funnel** — Awareness → Interest → Trial → Satisfaction → Repurchase
+7. **ROI prediction** — Ridge regression on soft-conversion signals
+8. **Marketing copy generation** — LLM, multi-channel, multi-variant, with predicted CTR
+
+---
+
+<a id="repository-structure"></a>
+
+## 📁 Repository Structure
 
 ```text
 ConsumerInsight-AI/
-├── app/                           # Streamlit Web Demo
+├── app/                          # Streamlit web demo
 │   └── streamlit_app.py
 ├── data/
-│   ├── raw/                       # 用户可放入自己的原始评论 CSV
-│   └── processed/                 # pipeline 输出的清洗后数据（gitignored）
-├── docs/                          # 文档
-│   ├── TECHNICAL_REPORT.md        # 学术风格技术报告
-│   ├── COURSE_MAPPING.md          # 项目能力 ↔ 课程方向对应表
-│   └── ARCHITECTURE.md            # 系统架构图与数据流
-├── notebooks/                     # 零 LLM 的可读 notebook
+│   ├── raw/                      # Drop your own reviews here
+│   └── processed/                # Pipeline-cleaned data (gitignored)
+├── docs/                         # Documentation
+│   ├── TECHNICAL_REPORT.md       # Academic-style technical report
+│   ├── COURSE_MAPPING.md         # Project capabilities ↔ course mapping
+│   └── ARCHITECTURE.md           # System architecture and data flow
+├── notebooks/                    # Walkthrough notebooks (no LLM required)
 │   └── 01_consumer_basics.py
 ├── outputs/
-│   ├── figures/                   # 7 张可视化图表（已 commit）
-│   └── reports/                   # Markdown 报告（gitignored，重新生成）
+│   ├── figures/                  # 7 visualisation charts (committed)
+│   └── reports/                  # Markdown report (gitignored, regenerated)
 ├── scripts/
-│   ├── run_pipeline.py            # 入口
-│   ├── run_all.py                 # 一键运行（虚拟环境 + 依赖安装）
-│   └── generate_sample_data.py    # 单独生成示例数据
+│   ├── run_pipeline.py           # CLI entry point
+│   ├── run_all.py                # One-click run (venv + dependencies)
+│   └── generate_sample_data.py   # Generate sample data standalone
 ├── src/
-│   ├── ai_analysis/               # 情感 / 主题 / Persona / 趋势
-│   ├── llm/                       # 可插拔 LLM 客户端（base / mock / openai）
-│   ├── marketing_analytics/       # 细分 / ROI / 漏斗 / 文案
-│   ├── visualization/             # matplotlib 图表函数
-│   ├── pipeline.py                # 主流程编排
-│   ├── data_loader.py             # 数据加载 / 合成
-│   └── config.py                  # 全局配置
-├── tests/                         # 单元测试
+│   ├── ai_analysis/              # Sentiment · topic · persona · trend
+│   ├── llm/                      # Pluggable LLM clients (base / mock / openai)
+│   ├── marketing_analytics/      # Segmentation · ROI · funnel · campaign
+│   ├── visualization/            # matplotlib chart helpers
+│   ├── pipeline.py               # Pipeline orchestrator
+│   ├── data_loader.py            # Data loading + synthetic generation
+│   └── config.py                 # Global configuration
+└── tests/                        # Unit tests
 ```
 
 ---
 
-## 🚀 快速开始（Quickstart）
+<a id="quickstart"></a>
 
-> 适合零代码经验的同学。Windows / macOS / Linux 都可。
+## 🚀 Quickstart
 
-### 1. 安装 Python（仅一次）
+> Tested on Windows, macOS and Linux.
 
-推荐 Python 3.10 或更高版本。从 [python.org](https://www.python.org/downloads/) 下载安装即可。
+### 1. Install Python (once)
 
-### 2. 一键运行
+Python 3.10 or later. Get it from [python.org](https://www.python.org/downloads/).
+
+### 2. Clone and run
 
 ```bash
+git clone https://github.com/111artemy-cmyk/ConsumerInsight-AI.git
 cd ConsumerInsight-AI
 python scripts/run_all.py
 ```
 
-脚本会**自动**：
+The script will:
 
-1. 检查 / 创建虚拟环境
-2. 安装 `requirements.txt` 中的依赖
-3. 生成 600 条贴近真实业务的示例评论
-4. 跑通完整 pipeline，输出 `outputs/reports/pipeline_report.md` 与 7 张图表
-5. 告诉你下一步怎么启动 Streamlit Demo
+1. Create / verify a virtual environment
+2. Install dependencies from `requirements.txt`
+3. Generate 600 sample reviews
+4. Run the full pipeline → `outputs/reports/pipeline_report.md` + 7 charts
+5. Print the command to launch the Streamlit demo
 
-### 3. 启动可视化 Demo
+### 3. Launch the interactive demo
 
 ```bash
 streamlit run app/streamlit_app.py
 ```
 
-浏览器打开 `http://localhost:8501` 即可与所有结果交互。
+Open `http://localhost:8501` in your browser to interact with all outputs.
 
-### 4. （可选）用真实 LLM API
+### 4. (Optional) Use a real LLM API
 
 ```bash
 # Windows PowerShell
-$env:OPENAI_API_KEY = "sk-..."
-$env:OPENAI_BASE_URL = "https://api.openai.com/v1"   # 或国内兼容端点
-$env:CI_LLM_BACKEND = "openai"
+$env:OPENAI_API_KEY  = "sk-..."
+$env:OPENAI_BASE_URL = "https://api.openai.com/v1"   # or any compatible endpoint
+$env:CI_LLM_BACKEND  = "openai"
 python scripts\run_pipeline.py
 ```
 
-支持的兼容端点示例：
+Compatible endpoints:
 
-- 智谱 GLM：`https://open.bigmodel.cn/api/paas/v4`
-- DeepSeek：`https://api.deepseek.com/v1`
-- Moonshot：`https://api.moonshot.cn/v1`
+- **GLM (Zhipu)** — `https://open.bigmodel.cn/api/paas/v4`
+- **DeepSeek** — `https://api.deepseek.com/v1`
+- **Moonshot** — `https://api.moonshot.cn/v1`
 
 ---
 
-## 🔬 方法概览
+<a id="pipeline-overview"></a>
+
+## 🔬 Pipeline Overview
 
 ```text
 ┌──────────────────────────────────────────────────────────────────┐
-│                    评论数据（CSV / 合成）                          │
+│                       Review data (CSV / synthetic)              │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 1. 多维度情感分析 (LLM JSON) ─ 6 个维度                           │
+│ 1. Multi-aspect sentiment (LLM JSON) — 6 dimensions              │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 2. 主题建模 (LLM + TF-IDF 交叉验证) ─ 5 个核心话题                │
+│ 2. Topic extraction (LLM + TF-IDF cross-check) — 5 themes        │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 3. Persona 生成 (KMeans + LLM) ─ 4 个细分群 + 画像卡片           │
+│ 3. Persona generation (KMeans + LLM) — 4 persona cards           │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 4. 受众细分 (KMeans on TF-IDF + 行为特征)                        │
-│ 5. 趋势检测 (周度聚合 + 线性回归斜率)                            │
-│ 6. 软漏斗 (认知 → 兴趣 → 试用 → 满意 → 复购)                     │
-│ 7. ROI 预估 (Ridge 回归 on 软转化代理信号)                       │
-│ 8. 营销文案生成 (LLM · 多渠道 · 多版本 · predicted_ctr)          │
+│ 4. Audience segmentation (KMeans on TF-IDF + behavioural)        │
+│ 5. Trend detection (weekly aggregation + linear slope)           │
+│ 6. Soft conversion funnel (Awareness → Repurchase)               │
+│ 7. ROI prediction (Ridge on soft-conversion signals)             │
+│ 8. Marketing copy generation (LLM, multi-channel, multi-variant)│
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
-   outputs/figures/*.png  +  outputs/reports/pipeline_report.md
+       outputs/figures/*.png  +  outputs/reports/pipeline_report.md
 ```
 
 ---
 
-## 🧭 Roadmap（可选扩展方向）
+<a id="roadmap"></a>
 
-- [ ] 接入 RAG，让 Persona / 文案基于品牌知识库而非纯 prompt
-- [ ] 把 Mock LLM 替换为本地 7B 模型（Llama / Qwen）
-- [ ] Streamlit Cloud / Hugging Face Spaces 一键部署
-- [ ] A/B 模拟：with-AI vs without-AI 文案转化的对比实验
-- [ ] 真实数据接入：品牌方授权 / 商业评论 API
+## 🧭 Roadmap
+
+- [ ] RAG layer — personas / copy grounded in a brand knowledge base instead of pure prompts
+- [ ] Local 7B model backend (Llama / Qwen) for fully offline operation
+- [ ] One-click deploy to Streamlit Cloud / Hugging Face Spaces
+- [ ] A/B simulation: with-AI vs without-AI copy conversion
+- [ ] Real-data integration via licensed / commercial review APIs
 
 ---
 
 ## License
 
-MIT —— see [`LICENSE`](LICENSE).
+MIT — see [`LICENSE`](LICENSE).
 
 ---
 
-## 致谢
+## Acknowledgments
 
-本项目以教育与开源展示为目的。示例数据为程序化合成，不涉及任何真实用户隐私。
-
----
-
-<a id="english-summary"></a>
-
-## English Summary
-
-**ConsumerInsight-AI** is an end-to-end pipeline that combines **Large Language Models** with classical **Marketing Analytics** techniques to extract consumer insights from review text and generate persona-targeted marketing copy.
-
-**What it does (8 steps):**
-
-1. Multi-aspect sentiment scoring (LLM, 6 dimensions)
-2. Topic extraction (LLM + TF-IDF cross-check, 5 themes)
-3. Persona generation (KMeans + LLM, 4 personas)
-4. Audience segmentation (KMeans on TF-IDF + behavioural features)
-5. Trend detection (weekly aggregation + linear slope)
-6. Soft conversion funnel (Awareness → Repurchase)
-7. ROI prediction (Ridge regression on soft-conversion signals)
-8. Campaign copy generation (LLM, multi-channel, multi-variant)
-
-**Tech stack:** Python · pandas · scikit-learn · matplotlib · Streamlit · pluggable LLM backends (Mock / GLM / DeepSeek / OpenAI).
-
-**Why synthetic data:** full reproducibility, zero API cost, no compliance risk. To use real data, drop your CSV into `data/raw/sample_reviews.csv` with the same schema and re-run the pipeline.
+Built for educational and portfolio purposes. Sample data is programmatically synthesised; no real user information is involved.
