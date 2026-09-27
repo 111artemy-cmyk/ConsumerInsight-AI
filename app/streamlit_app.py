@@ -116,12 +116,12 @@ elif section == "3. 多维度情感":
     st.header("多维度情感分析")
     st.dataframe(arts.sentiment_summary, use_container_width=True)
     if "sentiment_by_dimension" in arts.figures:
-        st.image(str(arts.figures["sentiment_by_dimension"]), use_column_width=True)
+        st.image(str(arts.figures["sentiment_by_dimension"]), use_container_width=True)
     if not arts.sentiment_by_segment.empty:
         st.subheader("细分人群在各维度上的情感差异")
         st.dataframe(arts.sentiment_by_segment, use_container_width=True)
         if "sentiment_by_segment" in arts.figures:
-            st.image(str(arts.figures["sentiment_by_segment"]), use_column_width=True)
+            st.image(str(arts.figures["sentiment_by_segment"]), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Section 4: Topics
@@ -131,7 +131,7 @@ elif section == "4. 核心话题":
     if not arts.topics.empty:
         st.dataframe(arts.topics, use_container_width=True)
     if "topic_share" in arts.figures:
-        st.image(str(arts.figures["topic_share"]), use_column_width=True)
+        st.image(str(arts.figures["topic_share"]), use_container_width=True)
     st.subheader("全语料 TF-IDF 关键词")
     st.dataframe(arts.topic_keywords, use_container_width=True)
 
@@ -149,7 +149,7 @@ elif section == "6. 受众细分":
     st.header("受众细分")
     st.dataframe(arts.segment_profile, use_container_width=True)
     if "segment_share" in arts.figures:
-        st.image(str(arts.figures["segment_share"]), use_column_width=True)
+        st.image(str(arts.figures["segment_share"]), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Section 7: Trends & Funnel
@@ -158,11 +158,11 @@ elif section == "7. 趋势 & 漏斗":
     st.header("周度趋势 & 软漏斗")
     st.dataframe(arts.weekly_stats, use_container_width=True)
     if "weekly_trend" in arts.figures:
-        st.image(str(arts.figures["weekly_trend"]), use_column_width=True)
+        st.image(str(arts.figures["weekly_trend"]), use_container_width=True)
     st.subheader("软转化漏斗")
     st.dataframe(arts.funnel, use_container_width=True)
     if "funnel" in arts.figures:
-        st.image(str(arts.figures["funnel"]), use_column_width=True)
+        st.image(str(arts.figures["funnel"]), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Section 8: ROI
@@ -171,7 +171,7 @@ elif section == "8. ROI 预估":
     st.header("细分群 ROI 预估")
     st.dataframe(arts.roi, use_container_width=True)
     if "roi" in arts.figures:
-        st.image(str(arts.figures["roi"]), use_column_width=True)
+        st.image(str(arts.figures["roi"]), use_container_width=True)
 
 # ---------------------------------------------------------------------------
 # Section 9: Creatives

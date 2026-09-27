@@ -23,16 +23,50 @@
 | Reviews processed | **1500** (multi-platform, synthetic) |
 | Audience segments identified | **4** (largest ~37% share) |
 | Consumer personas | **4** (each with a `why_matters` strategic note) |
-| Core discussion topics | **5** (packaging · skin feel · sensitivity · shade · logistics) |
+| Core discussion topics | **5** (skin feel · packaging · sensitivity · shade · logistics) |
 | Marketing variants generated | **12** (3 channels × 4 personas) |
 | Predicted ROI peak | **~+19-20×** (highest segment) |
 | Largest funnel drop-off | **Repurchase stage** (~40-45% retention) |
 | Visualisations | **7 charts** in `outputs/figures/` |
 | Markdown report | **`outputs/reports/pipeline_report.md`** |
 
-> The numbers above are typical values; exact figures vary with the random seed and synthetic data, and are recomputed on every `python scripts/run_pipeline.py` run.
+> The numbers above are deterministic at the default settings (`RANDOM_SEED=42` in `src/config.py`). Change the seed or sample size to explore variance.
 >
-> End-to-end runtime: **~15-30 seconds** on CPU. See [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md) for details.
+> End-to-end runtime: **~5-10 seconds** on CPU. See [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md) for details.
+
+---
+
+<a id="screenshots"></a>
+
+## 📸 Streamlit Demo (screenshots)
+
+The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar navigation). All screenshots below are real captures from `streamlit run app/streamlit_app.py`.
+
+### 1. Project overview
+
+![Overview](docs/screenshots/01_overview.png)
+
+### 3. Multi-aspect sentiment
+
+![Sentiment](docs/screenshots/02_sentiment.png)
+
+### 6. Audience segmentation
+
+![Segmentation](docs/screenshots/03_segmentation.png)
+
+### 7. Weekly trend & funnel
+
+![Funnel](docs/screenshots/04_funnel.png)
+
+### 8. Predicted ROI per segment
+
+![ROI](docs/screenshots/05_roi.png)
+
+### 9. Marketing copy candidates
+
+![Creatives](docs/screenshots/06_creatives.png)
+
+> To launch the live demo: `streamlit run app/streamlit_app.py` → open `http://localhost:8501`.
 
 ---
 
@@ -68,7 +102,7 @@
 | **LLM backends** | Pluggable — Mock (default) · OpenAI · GLM · DeepSeek · Moonshot |
 | **Visualisation** | matplotlib |
 | **Web demo** | Streamlit |
-| **Engineering** | pytest · pyproject.toml · GitHub Actions |
+| **Engineering** | pytest · pyproject.toml |
 
 ---
 
@@ -87,7 +121,7 @@
 **To swap in your own data:**
 
 1. Drop your real reviews into `data/raw/sample_reviews.csv`
-2. Keep the schema: `review_id, platform, rating, text, age_range, gender, week`
+2. Keep the schema: `review_id, platform, user_id, product, rating, text, timestamp, user_age_band, user_segment`
 3. Re-run `python scripts/run_pipeline.py` — every chart, report and copy regenerates automatically
 
 **Why synthetic data:**
@@ -146,15 +180,17 @@ ConsumerInsight-AI/
 │   ├── TECHNICAL_REPORT.md       # Academic-style technical report
 │   ├── COURSE_MAPPING.md         # Project capabilities ↔ course mapping
 │   └── ARCHITECTURE.md           # System architecture and data flow
+├── docs/screenshots/              # Streamlit dashboard snapshots (committed)
 ├── notebooks/                    # Walkthrough notebooks (no LLM required)
 │   └── 01_consumer_basics.py
 ├── outputs/
 │   ├── figures/                  # 7 visualisation charts (committed)
 │   └── reports/                  # Markdown report (gitignored, regenerated)
 ├── scripts/
-│   ├── run_pipeline.py           # CLI entry point
-│   ├── run_all.py                # One-click run (venv + dependencies)
-│   └── generate_sample_data.py   # Generate sample data standalone
+│   ├── run_pipeline.py                 # CLI entry point
+│   ├── run_all.py                      # One-click run (venv + dependencies)
+│   ├── generate_sample_data.py         # Generate sample data standalone
+│   └── capture_streamlit_screenshots.py # Capture dashboard screenshots for README
 ├── src/
 │   ├── ai_analysis/              # Sentiment · topic · persona · trend
 │   ├── llm/                      # Pluggable LLM clients (base / mock / openai)
@@ -163,7 +199,7 @@ ConsumerInsight-AI/
 │   ├── pipeline.py               # Pipeline orchestrator
 │   ├── data_loader.py            # Data loading + synthetic generation
 │   └── config.py                 # Global configuration
-└── tests/                        # Unit tests
+└── tests/                        # Unit tests (pytest)
 ```
 
 ---
@@ -172,7 +208,7 @@ ConsumerInsight-AI/
 
 ## 🚀 Quickstart
 
-> Tested on Windows, macOS and Linux.
+> Designed to run on Windows, macOS and Linux.
 
 ### 1. Install Python (once)
 
@@ -210,6 +246,12 @@ $env:OPENAI_API_KEY  = "sk-..."
 $env:OPENAI_BASE_URL = "https://api.openai.com/v1"   # or any compatible endpoint
 $env:CI_LLM_BACKEND  = "openai"
 python scripts\run_pipeline.py
+
+# macOS / Linux (bash)
+export OPENAI_API_KEY="sk-..."
+export OPENAI_BASE_URL="https://api.openai.com/v1"
+export CI_LLM_BACKEND="openai"
+python scripts/run_pipeline.py
 ```
 
 Compatible endpoints:
