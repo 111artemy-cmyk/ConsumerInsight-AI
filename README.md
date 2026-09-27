@@ -8,11 +8,11 @@
 [![Reproducible](https://img.shields.io/badge/reproducible-100%25-brightgreen)](#data-provenance)
 [![No API needed](https://img.shields.io/badge/API%20key-not%20required-orange)](#built-with)
 
-[English](#english-summary) · [项目说明](#项目说明)
+[English](#english-summary) · [项目简介](#项目简介)
 
 ---
 
-<a id="项目说明"></a>
+<a id="项目简介"></a>
 
 ## 📊 项目一览（Project at a Glance）
 
@@ -25,7 +25,7 @@
 | 自动生成营销文案 | **12 条**（每画像 × 3 渠道变体） |
 | 预测 ROI 峰值 | **约 +15-20 倍**（最高细分群） |
 | 漏斗最大流失点 | **Repurchase 阶段**（约 35-45% 留存） |
-| 可视化图表 | **7 张**（`outputs/figures/`，可直接放进作品集） |
+| 可视化图表 | **7 张**（`outputs/figures/`，可直接引用） |
 | Markdown 报告 | **1 份**（`outputs/reports/pipeline_report.md`） |
 
 > 上表为典型运行值。具体数字随随机种子与合成数据浮动，每次跑 `python scripts/run_pipeline.py` 都会重新计算。
@@ -48,7 +48,7 @@
 
 ![ROI](outputs/figures/07_roi_by_segment.png)
 
-> 完整 7 张图见 [`outputs/figures/`](outputs/figures/)。每张图都带数据来源行 + 底部 insight 框（无 emoji、纯英文标签），可以直接复制进作品集 / 简历 / 面试 PPT。
+> 完整 7 张图见 [`outputs/figures/`](outputs/figures/)。每张图都带数据来源行 + 底部 insight 框（无 emoji、纯英文标签），可以直接引用 / 二次编辑。
 
 ---
 
@@ -72,7 +72,7 @@
 
 | 数据层 | 真实度 | 说明 |
 |---|---|---|
-| `data/raw/sample_reviews.csv`（50 条种子） | 手写 | 按花西子真实风格手写的种子评论，覆盖 4 类细分群、3 个平台 |
+| `data/raw/sample_reviews.csv`（50 条种子） | 手写 | 按花西子品牌调性撰写的种子评论，覆盖 4 类细分群、3 个平台 |
 | `src/data_loader.py` 内的 `generate_synthetic_reviews()` | 自动合成 | 由 50 条种子 + 模板 + 关键词替换扩展到 600 条 |
 | Pipeline 输出 | 派生 | 全部基于上述 600 条合成评论计算 |
 
@@ -93,7 +93,7 @@
 
 ---
 
-## 项目说明
+## 📖 项目简介
 
 **ConsumerInsight-AI** 是一个端到端的「消费者洞察 + 营销内容生成」框架，把**大语言模型 (LLM)** 与**经典营销分析方法**整合到一条可一键运行的 pipeline 里，覆盖：
 
@@ -104,7 +104,7 @@
 - **跨方向** —— 同一项目同时承载 AI 工程能力（LLM 集成、prompt 设计、JSON 结构化输出）与 Marketing Analytics 落地能力（情感、漏斗、ROI、细分、文案）
 - **可复现** —— 默认使用离线 Mock LLM，零 API 成本即可跑通
 - **可升级** —— 一个环境变量切换到 OpenAI / 智谱 / DeepSeek
-- **可交互** —— 内置 Streamlit Dashboard，招生官可直接点开体验
+- **可交互** —— 内置 Streamlit Dashboard，用户可直接点开体验
 - **可解释** —— 每一段分析都有可视化图表 + Markdown 报告 + insight 文本
 
 ---
@@ -233,7 +233,7 @@ python scripts\run_pipeline.py
 
 ## 🎯 申请背景与配套材料
 
-> 本项目最初是作为申请 **澳门大学（UM）数据分析师硕士**——人工智能方向 / 市场营销分析方向的跨方向能力证明而构建。配套的 PS 模板、面试问答与课程对应关系已沉淀到 [`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)。
+> 本项目是申请 **澳门大学（UM）数据分析师硕士**——人工智能方向 / 市场营销分析方向的跨方向能力证明。配套的 PS 模板、面试问答与课程对应关系已沉淀到 [`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)。
 
 - 📄 **[`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md)** — 学术风格的技术报告，可放进作品集附录。
 - 📄 **[`docs/APPLICATION_MATERIALS.md`](docs/APPLICATION_MATERIALS.md)** — PS 写作模板、关键词、面试 Q&A。
@@ -248,7 +248,7 @@ python scripts\run_pipeline.py
 - [ ] 把 Mock LLM 替换为本地 7B 模型（Llama / Qwen），离线零成本再升级
 - [ ] Streamlit Cloud / Hugging Face Spaces 一键部署
 - [ ] A/B 模拟：with-AI vs without-AI 文案转化的对比实验
-- [ ] 真实数据接入：小红书公开笔记 / 天猫评论 API
+- [ ] 真实数据接入：品牌方授权 / 商业评论 API
 
 ---
 
@@ -260,7 +260,7 @@ MIT —— see [`LICENSE`](LICENSE).
 
 ## 致谢
 
-本项目以教育 / 申请展示为目的。示例数据为程序化合成，模拟真实业务场景的语言分布与情感极性，**不涉及任何真实用户隐私**。
+本项目以教育与开源展示为目的。示例数据为程序化合成，模拟真实业务场景的语言分布与情感极性，**不涉及任何真实用户隐私**。
 
 ---
 
