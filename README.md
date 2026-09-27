@@ -2,6 +2,8 @@
 
 > *End-to-End LLM + Marketing Analytics for Automated Consumer Insight & Campaign Generation.*
 
+> 🎯 Built as a portfolio project for application to the **University of Macau (UM) Master of Science in Data Science** programme, covering both the **Artificial Intelligence** and **Marketing Analytics** tracks.
+
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#license)
 [![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-success)](#quickstart)
