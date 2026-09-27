@@ -1,7 +1,7 @@
 """一键运行脚本 —— 给零代码经验的同学准备的"开箱即用"入口。
 
 用法（Windows PowerShell）
-    cd "D:\Mcode 储存点\ConsumerInsight-AI"
+    cd path\to\ConsumerInsight-AI      # 改成你 clone 到的本地路径
     python scripts\run_all.py
 
 脚本会自动：

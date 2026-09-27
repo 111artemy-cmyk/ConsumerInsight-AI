@@ -7,26 +7,15 @@ numpy>=1.24.0
 
 # NLP
 jieba>=0.42.1
-# transformers>=4.35.0      # Optional: for advanced sentiment models
-# torch>=2.0.0               # Optional: required by transformers
 
 # Machine Learning / Statistics
 scikit-learn>=1.3.0
 
 # Visualization
 matplotlib>=3.7.0
-plotly>=5.17.0
-wordcloud>=1.9.2
 
 # Web Demo
 streamlit>=1.28.0
 
-# LLM (optional — only needed if using real LLM API)
-# openai>=1.0.0
-
-# Report generation
-reportlab>=4.0.0
-
-# Utilities
-tqdm>=4.66.0
-python-dotenv>=1.0.0
+# LLM client (optional — only needed if using a real LLM API instead of Mock)
+openai>=1.0.0
