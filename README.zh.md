@@ -6,11 +6,11 @@
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#license)
-[![CI](https://img.shields.io/badge/CI-pending-lightgrey)](#-工程化--ci)
+[![CI](https://github.com/111artemy-cmyk/ConsumerInsight-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/111artemy-cmyk/ConsumerInsight-AI/actions/workflows/ci.yml)
 [![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-success)](#-快速开始)
 [![No API key](https://img.shields.io/badge/API%20key-not%20required-orange)](#-技术栈)
 
-[English](README.md) · [项目简介](#-项目简介)
+[English](README.md) · [项目简介](#-项目简介) · [Limitations](#-limitations诚实声明) · [评估](#-evaluation)
 
 > **本仓库的所有数字均来自程序生成的合成评论（synthetic data）。** 没有真实用户数据、默认运行不需要任何 LLM API key、报告中没有任何数字应被理解为真实业务 KPI。Pipeline 的目的是展示方法论与工程实现，不是产出商业结论。详见 [Limitations](#-limitations诚实声明)。
 
@@ -20,33 +20,29 @@
 
 ## 📊 项目一览（Project at a Glance）
 
-下表所有数字都可复现：`git clone` 后跑 `python scripts/run_pipeline.py --n 1500 --backend mock`。"Single seed (42)" 列来自这条命令的产物，与 `outputs/reports/pipeline_report.md` 字段一一对应；"Multi-seed (10×1500)" 列来自 `python scripts/run_stability_eval.py --seeds 1,2,3,4,5,6,7,8,9,42 --n-reviews 1500`（约 21 秒），与 `outputs/reports/stability_report.md` 字段一一对应。
+两个运行并排展示：
 
-| 指标 | Single seed (42) | Multi-seed (10×1500) mean ± std | 来源 |
+- **Single seed (42)** — `python scripts/run_pipeline.py --n 1500 --backend mock` → `outputs/reports/pipeline_report.md`
+- **Multi-seed (10 × 1500)** — `python scripts/run_stability_eval.py --seeds 1,2,3,4,5,6,7,8,9,42 --n-reviews 1500`（约 21 秒）→ `outputs/reports/stability_report.md`
+
+两份报告都已 commit，可对照验证每一个数字。
+
+| 指标 | Single seed (42) | Multi-seed (10 × 1500) mean ± std | 来源 |
 |---|---|---|---|
-| 处理评论数 | **1500** | 1500 (固定) | `data/processed/sample_processed.csv` |
-| 受众细分群 (KMeans) | **4** | 4 (固定) | `outputs/figures/03_segment_share.png` |
+| 处理评论数 | **1500** | 1500 (固定) | `pipeline_report.md` |
+| 受众细分群 (KMeans, k 固定) | **4** | 4 (固定) | `pipeline_report.md` §2 |
 | 最大细分群占比 (%) | **41.6**（segment 2） | **35.78 ± 3.56**（区间 32.87–42.67） | `pipeline_report.md` §2 / `stability_report.md` |
 | 消费者 Persona | **4** | 4 (固定) | `pipeline_report.md` §4 |
 | 核心话题 | **5** | 5 (固定) | `pipeline_report.md` §3 |
 | 营销文案候选 | **12**（3 渠道 × 4 persona） | 12 (固定) | `pipeline_report.md` §7 |
 | **示意性 ROI 指数** 峰值 | **+7.901** | **7.867 ± 0.046**（区间 7.799–7.959） | `pipeline_report.md` §6 / `stability_report.md` |
-| **示意性 ROI 指数** 峰值 segment | **0** | **0 (mode 5×)**，3:2×, 1:2×, 2:1× | `pipeline_report.md` §6 / `stability_report.md` |
+| **示意性 ROI 指数** 峰值 segment | **0** | **0** (5/10 seeds)；3 (2/10)；1 (2/10)；2 (1/10) | `stability_report.md` |
 | **软漏斗** 最差阶段留存率 | **0.409** | **0.401 ± 0.018**（区间 0.375–0.425） | `pipeline_report.md` §5 / `stability_report.md` |
 | **软漏斗** 最差阶段 | **`05_Repurchase`** | **`05_Repurchase` (10/10 seeds)** | `pipeline_report.md` §5 / `stability_report.md` |
-| **模拟点击率** 区间 | uniform `[0.04, 0.09)` | 同上（每个 seed 由确定性） | `pipeline_report.md` §7 |
-| Silhouette score | **+0.1507** | (单 seed only) | `pipeline_report.md` §8.1 |
-| ARI vs synthetic `user_segment` | **+0.0467** *(循环验证 — 见 Limitations)* | (单 seed only) | `pipeline_report.md` §8.1 |
-| NMI vs synthetic `user_segment` | **+0.0664** *(循环验证)* | (单 seed only) | `pipeline_report.md` §8.1 |
-| Pearson sentiment ↔ rating | **+0.8327** *(同源词典生成)* | (单 seed only) | `pipeline_report.md` §8.3 |
-| Spearman sentiment ↔ rating | **+0.7820** | (单 seed only) | `pipeline_report.md` §8.3 |
-| ROI CV R² (per-review proxy) | **+0.9793** *(proxy 是 4 特征的确定性函数)* | (单 seed only) | `pipeline_report.md` §8.4 |
-| ROI CV MAE | **0.3180** | (单 seed only) | `pipeline_report.md` §8.4 |
-| 可视化图表 | **7 张**（`outputs/figures/`） | — | `outputs/figures/*.png` |
-| Markdown 报告 | `outputs/reports/pipeline_report.md` | — | §8 评估 + 7 个章节 |
-| 稳定性报告 | `outputs/reports/stability_report.md` | — | 10 seeds × 1500 |
+| **模拟点击率** 区间 | uniform `[0.04, 0.09)` | 同上 | `pipeline_report.md` §7 |
+| 可视化图表 | **7 张**（`outputs/figures/`） | n/a | `outputs/figures/*.png` |
 
-> "Single seed" 和 "Multi-seed" 是两次独立运行。两列数字均来自本机真实的 `python` 调用，并已 commit 到仓库作为证据（见 `outputs/reports/`）。端到端运行时间：**单 seed pipeline 约 5-10 秒**，**10-seed 稳定性报告约 21 秒**。注意 "largest segment id" 在单 seed（segment 2）和多 seed（mode 0）下不同——该指标对采样敏感，**不应**作为稳定业务 KPI。
+**如何读这张表。** 10 个 seed 给出的 ± 值只是指标性而非精确值。"largest segment id" 和 "peak ROI segment id" 在不同 seed 之间会变化，对采样敏感，**不是**稳定结论。只有"worst funnel stage" 在所有 10 个 seed 中都稳定。聚类质量与模型拟合指标（silhouette / ARI / NMI / Pearson / ROI CV）见 [评估](#-evaluation) 章节。运行时间：单 seed 约 5-10 秒。
 
 ---
 
@@ -60,8 +56,9 @@
 * **默认 LLM 是基于规则的 Mock。** 复现本 README 中任何数字不需要 API key。Mock 客户端用一个小型词典 + 强化/否定修饰规则实现（见 `src/llm/mock_client.py`），它**不是**真实 LLM 的替代品，是一个确定性的离线基线。任何本仓库中以"the LLM..."开头的句子都指代"当前配置的 LLM"——默认是 Mock。
 * **"ROI" 是 *示意性* ROI 指数。** 它由 `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` 与 `src/config.py::ROIConfig` 里的成本/收入假设共同计算（默认 ARPU=¥120、CAC=¥5、baseline gate=0.5）。它**不是**营销花费回报的测度，是一个教学工件，使 segment 聚合步骤有数字可输出。
 * **"漏斗" 是 *软* 漏斗。** 5 个阶段（Awareness → Interest → Trial → Satisfaction → Repurchase）由 `src/funnel_analyzer.py` 中的关键词规则从评论文本推断。没有曝光、点击、订单。漏斗图与报告中都明确标注 `Soft funnel — inferred from review text + rating, not real behavioural conversion`。
-* **聚类可能反映合成模板结构，而非真实人群。** KMeans 跑在 `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating` 之上。合成生成器本身按 `user_segment`（学生党/通勤族/成分党/精致妈妈）组织评论，所以预测聚类 vs `user_segment` 的 ARI / NMI 是**循环验证**——高分意味着"KMeans 还原了合成结构"，**不**意味着"KMeans 找到了真实消费者群体"。
+* **聚类可能反映合成模板结构，而非真实人群。** KMeans 跑在 `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating` 之上，**k = 4 预先固定**。seed=42 单次运行的 silhouette score 为 **0.15**、ARI / NMI vs 合成器的 `user_segment` 分别为 **0.05 / 0.07**——4 个聚类分离度很弱，**不能**还原 4 个合成 segment；贴在它们上面的"persona" 是这些弱聚类的描述，不是经过验证的消费者类型。即使 ARI / NMI 很高也是循环验证，因为 `user_segment` 本身就是合成的。
 * **"Simulated CTR" 是均匀随机采样。** 渠道级 `simulated_ctr` 从 `Uniform[0.04, 0.09)` 采样，由 `MockLLMClient._compose_campaign` 生成。它让渠道预算分配步骤有一个相对权重的输入，**不是**真实 CTR 预测。
+* **没有部署公开 Demo。** Streamlit dashboard 在本地运行。如需发布你的 fork，按 [Deploy](#-deploy) 步骤走。README **不会**声称已有托管 Demo。
 
 这些限制同样在 `docs/TECHNICAL_REPORT.md` §6、每张图与每份报告中标注。
 
@@ -192,7 +189,7 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 - ✅ 焦点在 **方法论 + pipeline 工程**，而非数据本身
 - ✅ 与真实数据接口完全一致（plug-in 设计）
 
-> **验证方法**：删掉 `data/raw/sample_reviews.csv` 后重新跑 pipeline，会得到结构完全相同但内容不同的输出 —— 这证明**代码独立于数据**。
+> **Sanity check（验证独立性）**：删掉 `data/raw/sample_reviews.csv` 后重新跑 pipeline，会得到结构完全相同但文本不同的输出 —— 这证明**代码不依赖于具体那份种子文件**。
 
 ---
 
@@ -201,6 +198,8 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 ## 📖 项目简介
 
 **ConsumerInsight-AI** 是一个端到端的「消费者洞察 + 营销内容生成」框架，把**大语言模型 (LLM)** 与**经典营销分析方法**整合到一条可一键运行的 pipeline 里，覆盖：
+
+**项目要回答的问题：**
 
 > *如何从海量社交媒体评论中，**自动**提炼出可指导营销决策的消费者洞察，并针对不同细分人群**自动**生成高质量的营销文案？*
 
@@ -264,7 +263,7 @@ ConsumerInsight-AI/
 │   └── 01_consumer_basics.py
 ├── outputs/
 │   ├── figures/                  # 7 张 matplotlib 图表（已 commit）
-│   └── reports/                  # Markdown 报告（gitignored，重新生成）
+│   └── reports/                  # pipeline_report.md + stability_report.md（committed snapshots）
 ├── scripts/
 │   ├── run_pipeline.py                 # 入口
 │   ├── run_all.py                      # 一键运行（虚拟环境 + 依赖安装）
@@ -348,17 +347,15 @@ python scripts\run_pipeline.py
 
 ## ☁️ 部署（Streamlit Community Cloud）
 
-Streamlit dashboard 已具备部署条件。把你 fork 的仓库发到 Streamlit Community Cloud：
+**当前没有部署公开 Demo。** 把你 fork 的仓库发到 Streamlit Community Cloud：
 
 1. 在 GitHub 上 fork 本仓库。
 2. 打开 [share.streamlit.io](https://share.streamlit.io/) → **New app** → 选你的 fork。
 3. **Main file path**：`app/streamlit_app.py`
 4. **Python version**：3.10 或 3.11（与 `.github/workflows/ci.yml` 一致）。
-5. **Advanced settings → Requirements file**：`requirements.txt`（平台会自动识别）。
+5. **Requirements file**：`requirements.txt`（自动识别）。
 6. 点 **Deploy**。第一次启动会跑一次 pipeline，由 `@st.cache_resource` 缓存结果，之后访问瞬时返回。
 7. （可选）在 fork 的 *Settings → Secrets* 里加 `OPENAI_API_KEY` / `OPENAI_BASE_URL`，以便用真实 LLM 而非 Mock 演示。
-
-> README 没有声称 demo 当前已部署——见 [Limitations](#-limitations诚实声明) 关于诚实承诺的说明。上面提供的部署配方让审稿人能一键复现。
 
 ---
 
@@ -410,22 +407,25 @@ Streamlit dashboard 已具备部署条件。把你 fork 的仓库发到 Streamli
 
 <a id="evaluation-zh"></a>
 
-## 🧪 评估与诚实声明 (Honest Evaluation)
+## 🧪 评估（Evaluation）
 
-由于本项目的全部数字来自合成数据，pipeline 自带一个评估层（而非依赖外部 benchmark）。目标是让每个指标都能回溯到一次具体的运行，并在文档里暴露循环论证风险。
+由于本项目的全部数字来自合成数据，pipeline 自带一个评估层（而非依赖外部 benchmark）。每个指标都能溯源到一次具体的运行，循环验证会显式标注。详见 `src/evaluation.py` 与 `outputs/reports/pipeline_report.md` 的 §8。
 
-**5 类诚实评估指标**（详见 `src/evaluation.py` 与 `outputs/reports/pipeline_report.md` 的 §8）：
-
-| # | 指标 | 真实含义 |
+| 指标（seed=42） | 数值 | 如何读它 |
 |---|---|---|
-| 1 | Silhouette score | TF-IDF + 行为特征空间中聚类的分离度 |
-| 1 | ARI / NMI vs 合成 `user_segment` | 聚类是否"还原"了合成阶段的 segment 结构（**循环验证**，高分不等于"聚类找到了有意义的真实消费者群体"） |
-| 2 | LLM 关键词 vs TF-IDF 关键词重合率 | LLM 主题抽取是否覆盖了 TF-IDF 高频 n-gram |
-| 3 | 情感分 vs 评分 Pearson / Spearman 相关 | LLM 情感分数是否与用户给的 1-5 星评分一致 |
-| 4 | Per-review ROI K-fold CV R² / MAE | 4 个代理特征能否预测 per-review ROI proxy（R² 接近 1 **是预期的**——proxy 本身就是这 4 个特征的 deterministic 函数） |
-| 5 | 多 seed 稳定性 | 在 **10 个不同 RANDOM_SEED**（默认）下，头部指标的 mean / std / min / max |
+| Silhouette score | **+0.1507** | 聚类分离度很弱。这个值通常被解读为"几乎没有真正的 cluster 结构"。 |
+| ARI vs 合成 `user_segment` | **+0.0467** | 接近零：聚类与合成器的 segment 标签几乎不对齐。`user_segment` 本身也是合成的，所以这个检验是循环的。 |
+| NMI vs 合成 `user_segment` | **+0.0664** | 同 ARI。 |
+| Pearson 情感 ↔ 评分 | **+0.8327** | 高，但情感和评分共用同一词典，所以只证明"内部自洽"。 |
+| Spearman 情感 ↔ 评分 | **+0.7820** | 同上。 |
+| ROI 5-fold CV R²（per-review proxy） | **+0.9793** | 预期之内，并不惊人：proxy 是输入特征的确定性函数。 |
+| ROI CV MAE | **0.3180** | 同上说明。 |
+| LLM ↔ TF-IDF 关键词重合率 | 见 `pipeline_report.md` §8 | TF-IDF n-grams 中同时出现在 LLM 关键词中的比例。 |
+| 多 seed 稳定性 | 见 [项目一览](#-project-at-a-glance) | 10 个 seed 下头部指标的 mean / std / min / max。 |
 
-**多 seed 稳定性脚本**（与主 pipeline 解耦，保持主流程 5-10 秒速度）：
+**这些数字在说什么。** 情感和 ROI 模块**在构造上**就是自洽的；而聚类模块很弱。固定 k=4 并把合成器的 segment 标签当真值参考，并不能证明四个"细分群"是真实有效的（见 [Limitations](#-limitations诚实声明)）。
+
+多 seed 稳定性脚本与主 pipeline 解耦，主流程仍 5-10 秒：
 
 ```bash
 python scripts/run_stability_eval.py                # 10 seeds × 1500 评论（约 21 秒）
@@ -444,8 +444,8 @@ python scripts/run_stability_eval.py --n-seeds 5 --n-reviews 500
 
 * **`pyproject.toml`** — package 元数据 + setuptools 自动发现；源码可 `pip install -e .` 安装。
 * **`tests/`** — 27 个 pytest 测试（5 segmentation + 6 funnel + 4 ROI + 3 campaign + 3 sentiment + 13 evaluation）。运行 `python -m pytest tests/ -q`。
-* **`.github/workflows/ci.yml`** — Python 3.10 / 3.11 matrix CI：装包 → 跑测试 → 跑一次 smoke `run_pipeline.py`。（上面的徽章在远端仓库启用 workflow 后会变绿。）
-* **`requirements.txt`** — 主要依赖固定到主/次版本号（`pandas>=2.0`、`numpy>=1.24`、`scikit-learn>=1.3`、`matplotlib>=3.7`、`streamlit>=1.28`、`openai>=1.0`、`jieba>=0.42`）。
+* **`.github/workflows/ci.yml`** — Python 3.10 / 3.11 matrix CI：装包 → 跑测试 → 跑一次 smoke `run_pipeline.py`。README 顶部的 CI 徽章实时显示最新状态。
+* **`requirements.txt`** — 主要依赖固定到主/次版本号（`pandas>=2.0`、`numpy>=1.24`、`scikit-learn>=1.3`、`matplotlib>=3.7`、`streamlit>=1.28`、`openai>=1.0`、`jieba>=0.42`、`tabulate>=0.9`）。
 * **可复现性** — `src/config.py` 里 `RANDOM_SEED = 42`；`MockLLMClient` 用 MD5 派生 stable seed（跨进程确定性）。
 
 ---
@@ -454,11 +454,13 @@ python scripts/run_stability_eval.py --n-seeds 5 --n-reviews 500
 
 ## 🧭 Roadmap（可选扩展方向）
 
+- [ ] 跑一个真实 LLM 后端（如 DeepSeek）并与 Mock 基线对比报告
+- [ ] 用 silhouette / elbow sweep 选 k，而不是固定 k=4
+- [ ] 用一个公开评论数据集（带 license）做合成数据之外的验证
+- [ ] 通过 bootstrap 给 per-cluster KPI 加置信区间
 - [ ] 接入 RAG，让 Persona / 文案基于品牌知识库而非纯 prompt
 - [ ] 把 Mock LLM 替换为本地 7B 模型（Llama / Qwen）
 - [ ] A/B 模拟：with-AI vs without-AI 文案转化的对比实验
-- [ ] 真实数据接入：品牌方授权 / 商业评论 API
-- [ ] 通过 bootstrap 给 per-cluster KPI 加置信区间
 
 ---
 

@@ -6,11 +6,11 @@
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#license)
-[![CI](https://img.shields.io/badge/CI-pending-lightgrey)](#-engineering--ci)
+[![CI](https://github.com/111artemy-cmyk/ConsumerInsight-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/111artemy-cmyk/ConsumerInsight-AI/actions/workflows/ci.yml)
 [![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-success)](#-quickstart)
 [![No API key](https://img.shields.io/badge/API%20key-not%20required-orange)](#-built-with)
 
-[中文版](README.zh.md) · [Project Overview](#-project-overview)
+[中文版](README.zh.md) · [Project Overview](#-project-overview) · [Limitations](#-limitations) · [Evaluation](#-evaluation)
 
 > **All numbers in this repository come from programmatically generated synthetic reviews.** No real customer data is used, no real LLM API is required for the default run, and no number in any chart or report should be read as a real-world business KPI. The pipeline exists to demonstrate methodology and engineering. See [Limitations](#-limitations) for the full disclaimer.
 
@@ -20,33 +20,29 @@
 
 ## 📊 Project at a Glance
 
-Every value below is reproducible: re-run `python scripts/run_pipeline.py --n 1500 --backend mock` after `git clone`. The "Single seed (42)" column comes from that exact command and matches `outputs/reports/pipeline_report.md` byte-for-byte. The "Multi-seed (10×1500)" column comes from `python scripts/run_stability_eval.py --seeds 1,2,3,4,5,6,7,8,9,42 --n-reviews 1500` (≈21 s) and matches `outputs/reports/stability_report.md` byte-for-byte.
+Two runs are reported side by side:
 
-| Metric | Single seed (42) | Multi-seed (10×1500) mean ± std | Source |
+- **Single seed (42)** — `python scripts/run_pipeline.py --n 1500 --backend mock` → `outputs/reports/pipeline_report.md`
+- **Multi-seed (10 × 1500)** — `python scripts/run_stability_eval.py --seeds 1,2,3,4,5,6,7,8,9,42 --n-reviews 1500` (~21 s) → `outputs/reports/stability_report.md`
+
+Both reports are committed as snapshots so every number below can be checked without re-running.
+
+| Metric | Single seed (42) | Multi-seed (10 × 1500), mean ± std | Source |
 |---|---|---|---|
-| Reviews processed | **1500** | 1500 (fixed) | `data/processed/sample_processed.csv` |
-| Audience segments (KMeans) | **4** | 4 (fixed) | `outputs/figures/03_segment_share.png` |
+| Reviews processed | **1500** | 1500 (fixed) | `pipeline_report.md` |
+| Audience segments (KMeans, k fixed) | **4** | 4 (fixed) | `pipeline_report.md` §2 |
 | Largest segment share (%) | **41.6** (segment 2) | **35.78 ± 3.56** (range 32.87–42.67) | `pipeline_report.md` §2 / `stability_report.md` |
 | Consumer personas | **4** | 4 (fixed) | `pipeline_report.md` §4 |
 | Core discussion topics | **5** | 5 (fixed) | `pipeline_report.md` §3 |
 | Marketing variants | **12** (3 channels × 4 personas) | 12 (fixed) | `pipeline_report.md` §7 |
-| **Illustrative ROI index** — peak value | **+7.901** | **7.867 ± 0.046** (range 7.799–7.959) | `pipeline_report.md` §6 / `stability_report.md` |
-| **Illustrative ROI index** — peak segment id | **0** | **0 (mode 5×)**, 3:2×, 1:2×, 2:1× | `pipeline_report.md` §6 / `stability_report.md` |
-| **Soft funnel** worst retention | **0.409** | **0.401 ± 0.018** (range 0.375–0.425) | `pipeline_report.md` §5 / `stability_report.md` |
-| **Soft funnel** worst stage | **`05_Repurchase`** | **`05_Repurchase` in 10/10 seeds** | `pipeline_report.md` §5 / `stability_report.md` |
+| **Illustrative ROI index**, peak value | **+7.901** | **7.867 ± 0.046** (range 7.799–7.959) | `pipeline_report.md` §6 / `stability_report.md` |
+| **Illustrative ROI index**, peak segment id | **0** | **0** in 5/10 seeds; 3 in 2/10; 1 in 2/10; 2 in 1/10 | `stability_report.md` |
+| **Soft funnel**, worst retention | **0.409** | **0.401 ± 0.018** (range 0.375–0.425) | `pipeline_report.md` §5 / `stability_report.md` |
+| **Soft funnel**, worst stage | **`05_Repurchase`** | **`05_Repurchase`** in 10/10 seeds | `pipeline_report.md` §5 / `stability_report.md` |
 | **Simulated CTR score** range | uniform `[0.04, 0.09)` | same (deterministic per seed) | `pipeline_report.md` §7 |
-| Silhouette score | **+0.1507** | (single-seed only) | `pipeline_report.md` §8.1 |
-| ARI vs synthetic `user_segment` | **+0.0467** *(circular — see Limitations)* | (single-seed only) | `pipeline_report.md` §8.1 |
-| NMI vs synthetic `user_segment` | **+0.0664** *(circular)* | (single-seed only) | `pipeline_report.md` §8.1 |
-| Pearson sentiment ↔ rating | **+0.8327** *(same lexicon on both sides)* | (single-seed only) | `pipeline_report.md` §8.3 |
-| Spearman sentiment ↔ rating | **+0.7820** | (single-seed only) | `pipeline_report.md` §8.3 |
-| ROI CV R² (per-review proxy) | **+0.9793** *(proxy is a deterministic function of features)* | (single-seed only) | `pipeline_report.md` §8.4 |
-| ROI CV MAE | **0.3180** | (single-seed only) | `pipeline_report.md` §8.4 |
-| Visualisations | **7 charts** in `outputs/figures/` | — | `outputs/figures/*.png` |
-| Markdown report | `outputs/reports/pipeline_report.md` | — | §8 evaluation + 7 sections |
-| Stability report | `outputs/reports/stability_report.md` | — | 10 seeds × 1500 |
+| Visualisations | **7 charts** in `outputs/figures/` | n/a | `outputs/figures/*.png` |
 
-> "Single seed" and "Multi-seed" are two different runs. Both sets of numbers above come from real `python` invocations on this machine and are committed to the repository as evidence (see `outputs/reports/`). End-to-end runtime: **~5-10 s** for the single-seed pipeline, **~21 s** for the default 10-seed stability report. Note that the largest segment id can differ between single-seed (segment 2) and multi-seed (mode 0) runs — that metric is sampling-sensitive and is **not** a stable business KPI.
+**How to read this table.** With 10 seeds the ± values are indicative, not precise. The largest-segment id and the peak-ROI segment id change between seeds, so they are sampling-sensitive and **not** stable findings. Only the "worst funnel stage" is consistent across all 10 seeds. Clustering-quality and model-fit metrics (silhouette / ARI / NMI / Pearson / ROI CV) are in the [Evaluation](#evaluation) section. Runtime: ~5–10 s for a single-seed run.
 
 ---
 
@@ -60,8 +56,9 @@ This project is honest about what it is not. Read this section before drawing co
 * **The default LLM is a rule-based Mock.** No API key is required to reproduce any number in this README. The Mock client implements a small lexicon + intensifier/negator rule system (see `src/llm/mock_client.py`) and is *not* a substitute for a real LLM; it is a deterministic offline baseline. Any sentence in this repository that begins "the LLM..." refers to whichever backend is configured — default is the Mock.
 * **The "ROI" number is an *Illustrative* ROI Index.** It is computed from `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` and a configurable cost/revenue assumption in `src/config.py::ROIConfig` (defaults: ARPU = ¥120, CAC = ¥5, baseline gate = 0.5). It is *not* a measure of marketing spend return; it is a teaching artefact so the segment-aggregation step has a numeric output.
 * **The "Funnel" is a *Soft* Funnel.** The five stages (Awareness → Interest → Trial → Satisfaction → Repurchase) are inferred from review text via keyword predicates (`src/funnel_analyzer.py`). There are no impressions, clicks, or orders. The funnel chart and report explicitly carry the label `Soft funnel — inferred from review text + rating, not real behavioural conversion`.
-* **Clustering may reflect the synthetic generation template, not real segments.** KMeans is run on `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating`. The synthetic generator itself segments reviews by `user_segment` (学生党/通勤族/成分党/精致妈妈), so ARI / NMI between predicted clusters and `user_segment` is a *circular validation* — high scores would mean "the clusterer rediscovered the synthetic structure", not "the clusterer found real consumer segments".
+* **Clustering may reflect the synthetic generation template, not real segments.** KMeans is run on `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating` with **k = 4 fixed in advance**. In the seed-42 run the silhouette score is **0.15** and ARI / NMI against the generator's `user_segment` are **0.05 / 0.07**. The four clusters are only weakly separated and do **not** reproduce the four synthetic segments; the "personas" attached to them are descriptions of these weak clusters, not validated consumer types. Even a high ARI / NMI would have been a circular check, because `user_segment` itself is synthetic.
 * **The "Simulated CTR" is a uniform random sample.** Channel-level `simulated_ctr` is drawn from `Uniform[0.04, 0.09)` inside `MockLLMClient._compose_campaign`. It exists so that the channel-budget-allocation step has a relative-weight input. It is *not* a real CTR prediction.
+* **No public demo is deployed.** The Streamlit dashboard runs locally. To publish your own, follow the steps in [Deploy](#deploy). The README does **not** claim a hosted demo is currently available.
 
 These limitations are also documented in `docs/TECHNICAL_REPORT.md` §6 and rendered on every chart and in every generated report.
 
@@ -192,7 +189,7 @@ The same data that powers the Streamlit dashboard above is also exported as stat
 - ✅ Focus stays on **methodology and engineering**, not the data itself
 - ✅ Interface is identical to a real-data pipeline (plug-in design)
 
-> **Verification trick:** delete `data/raw/sample_reviews.csv` and re-run the pipeline — you get structurally identical but textually different output. The code is independent of the data.
+> **Sanity check:** delete `data/raw/sample_reviews.csv` and re-run — you get structurally identical but textually different output, showing the code does not depend on the specific seed file.
 
 ---
 
@@ -200,11 +197,11 @@ The same data that powers the Streamlit dashboard above is also exported as stat
 
 ## 📖 Project Overview
 
-**ConsumerInsight-AI** is an end-to-end framework that combines **large language models** with classical **marketing analytics** techniques to extract consumer insights from review text and generate persona-targeted marketing copy.
+**ConsumerInsight-AI** combines **large language models** with classical **marketing analytics** to extract consumer insights from review text and generate persona-targeted marketing copy.
 
-**The problem it solves:**
+**The question it explores:**
 
-> *How can we automatically distill consumer insights from a high volume of social-media reviews, and automatically generate high-quality marketing copy for each audience segment?*
+> *How can we automatically distill consumer insights from a high volume of social-media reviews, and generate marketing copy for each audience segment?*
 
 Key properties:
 
@@ -265,7 +262,7 @@ ConsumerInsight-AI/
 │   └── 01_consumer_basics.py
 ├── outputs/
 │   ├── figures/                  # 7 matplotlib charts (committed)
-│   └── reports/                  # Markdown reports (gitignored, regenerated)
+│   └── reports/                  # pipeline_report.md + stability_report.md (committed snapshots)
 ├── scripts/
 │   ├── run_pipeline.py                 # CLI entry point
 │   ├── run_all.py                      # One-click run (venv + dependencies)
@@ -355,17 +352,15 @@ Compatible endpoints:
 
 ## ☁️ Deploy (Streamlit Community Cloud)
 
-The Streamlit dashboard is deployment-ready. To publish your fork to Streamlit Community Cloud:
+**No public demo is deployed yet.** To publish your own fork to Streamlit Community Cloud:
 
 1. Fork this repository on GitHub.
 2. Go to [share.streamlit.io](https://share.streamlit.io/) → **New app** → pick your fork.
 3. **Main file path**: `app/streamlit_app.py`
 4. **Python version**: 3.10 or 3.11 (matches `.github/workflows/ci.yml`).
-5. **Advanced settings → Requirements file**: `requirements.txt` (the platform auto-detects it).
+5. **Requirements file**: `requirements.txt` (auto-detected).
 6. Click **Deploy**. First boot runs the pipeline once and caches results via `@st.cache_resource`, so subsequent visits are instant.
-7. (Optional) In your fork's *Settings → Secrets*, add `OPENAI_API_KEY` / `OPENAI_BASE_URL` if you want to demo with a real LLM instead of the Mock.
-
-> The README does not claim the demo is currently deployed — see [Limitations](#-limitations) on why we keep that promise honest. The deploy recipe above is provided so a reviewer can reproduce it in one click.
+7. (Optional) Under *Settings → Secrets*, add `OPENAI_API_KEY` / `OPENAI_BASE_URL` if you want to demo with a real LLM instead of the Mock.
 
 ---
 
@@ -417,22 +412,25 @@ The Streamlit dashboard is deployment-ready. To publish your fork to Streamlit C
 
 <a id="evaluation"></a>
 
-## 🧪 Evaluation & Honest Reporting
+## 🧪 Evaluation
 
-Because every number in this project is computed from synthetic data, the pipeline ships with its own evaluation layer rather than relying on outside benchmarks. The goal is to make every metric **traceable** to a real run and to expose circular-validation risks in writing.
+Because all data is synthetic, the pipeline includes its own evaluation layer (`src/evaluation.py`, reported in §8 of `outputs/reports/pipeline_report.md`). Each metric is traceable to a real run, and circular checks are marked as such.
 
-**Five honest-evaluation primitives** (see `src/evaluation.py` and §8 of `outputs/reports/pipeline_report.md`):
-
-| # | Metric | What it actually measures |
+| Metric (seed 42) | Value | How to read it |
 |---|---|---|
-| 1 | Silhouette score | Cluster separation on the TF-IDF + behavioural feature space |
-| 1 | ARI / NMI vs synthetic `user_segment` | Whether the clusterer rediscovered the synthetic segment structure (**circular check** — high scores do NOT prove the clusterer found real consumer segments) |
-| 2 | LLM↔TF-IDF keyword overlap | TF-IDF n-grams that also appear in the LLM's word-level keywords |
-| 3 | Pearson / Spearman sentiment↔rating | Whether the LLM-derived sentiment agrees with the user-given 1-5 star rating |
-| 4 | K-fold CV R² / MAE on per-review ROI | How the four proxy features predict per-review ROI proxy (R² near 1 is *expected*, not impressive — the proxy is a deterministic function of the features) |
-| 5 | Multi-seed stability | Mean / std / min / max of headline metrics across **10 distinct RANDOM_SEED values** (default) |
+| Silhouette score | **+0.1507** | Weak cluster separation. Values this low are commonly read as little substantial cluster structure. |
+| ARI vs synthetic `user_segment` | **+0.0467** | Near zero: the clusters barely align with the generator's segment labels. `user_segment` is itself synthetic, so this check is circular either way. |
+| NMI vs synthetic `user_segment` | **+0.0664** | Same reading as ARI. |
+| Pearson sentiment ↔ rating | **+0.8327** | High, but sentiment and ratings are built with the same lexicon, so it shows internal consistency only. |
+| Spearman sentiment ↔ rating | **+0.7820** | Same caveat. |
+| ROI 5-fold CV R² (per-review proxy) | **+0.9793** | Expected, not impressive: the proxy is a deterministic function of the input features. |
+| ROI CV MAE | **0.3180** | Same caveat. |
+| LLM ↔ TF-IDF keyword overlap | see `pipeline_report.md` §8 | Fraction of TF-IDF n-grams that also appear in the LLM's keywords. |
+| Multi-seed stability | see [Project at a Glance](#project-at-a-glance) | Mean / std / min / max of headline metrics over 10 seeds. |
 
-**Multi-seed stability script** (independent of the main pipeline so the 5-10 s runtime stays snappy):
+**What these numbers say.** The sentiment and ROI components are internally consistent *by construction*, while the segmentation is weak. Fixing k = 4 and reusing the generator's segment labels as a reference do not by themselves validate the four "audience segments" (see [Limitations](#limitations)).
+
+The multi-seed script is independent of the main pipeline, so the single-run time stays short:
 
 ```bash
 python scripts/run_stability_eval.py                # 10 seeds × 1500 reviews (~21 s)
@@ -451,7 +449,7 @@ Output: `outputs/reports/stability_report.md`.
 
 * **`pyproject.toml`** — package metadata + setuptools discovery; the source tree is installable with `pip install -e .`.
 * **`tests/`** — 27 pytest tests (5 segmentation, 6 funnel, 4 ROI, 3 campaign, 3 sentiment, 13 evaluation). Run with `python -m pytest tests/ -q`.
-* **`.github/workflows/ci.yml`** — matrix CI on Python 3.10 / 3.11: install deps, run pytest, run a smoke `run_pipeline.py` invocation. (Badge above will go green once the workflow is enabled on the upstream repo.)
+* **`.github/workflows/ci.yml`** — matrix CI on Python 3.10 / 3.11: install deps, run pytest, run a smoke `run_pipeline.py` invocation. The CI badge at the top of this README shows the latest result.
 * **`requirements.txt`** — pinned major / minor versions (`pandas>=2.0`, `numpy>=1.24`, `scikit-learn>=1.3`, `matplotlib>=3.7`, `streamlit>=1.28`, `openai>=1.0`, `jieba>=0.42`).
 * **Reproducibility** — `RANDOM_SEED = 42` in `src/config.py`; the `MockLLMClient` uses an MD5-derived stable seed (cross-process deterministic).
 
@@ -461,11 +459,13 @@ Output: `outputs/reports/stability_report.md`.
 
 ## 🧭 Roadmap
 
+- [ ] Run and report a real-LLM backend (e.g. DeepSeek) alongside the Mock baseline
+- [ ] Choose k by a silhouette / elbow sweep instead of fixing k = 4
+- [ ] Validate on a public review dataset (with a documented licence) instead of synthetic data only
+- [ ] Confidence intervals on per-cluster KPIs via bootstrap
 - [ ] RAG layer — personas / copy grounded in a brand knowledge base instead of pure prompts
 - [ ] Local 7B model backend (Llama / Qwen) for fully offline operation
 - [ ] A/B simulation: with-AI vs without-AI copy conversion
-- [ ] Real-data integration via licensed / commercial review APIs
-- [ ] Confidence intervals on per-cluster KPIs via bootstrap
 
 ---
 
