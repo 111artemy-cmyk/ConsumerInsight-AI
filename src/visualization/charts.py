@@ -116,6 +116,7 @@ def plot_sentiment_by_dimension(
     out_path: Path,
     title: str = "Multi-Aspect Sentiment Score",
     subtitle: str = "Average sentiment across six product-experience dimensions (range -1 to +1)",
+    n_reviews: Optional[int] = None,
 ) -> Path:
     df = summary.sort_values("avg_score")
     colors = [PALETTE["bad"] if v < 0 else PALETTE["good"] for v in df["avg_score"]]
@@ -124,7 +125,7 @@ def plot_sentiment_by_dimension(
     bars = ax.barh(df["dimension"], df["avg_score"], color=colors, edgecolor="white")
     ax.set_xlim(-1, 1)
     ax.axvline(0, color="#444", linewidth=0.6)
-    ax.set_xlabel("Sentiment Score (-1 Negative · 0 Neutral · +1 Positive)")
+    ax.set_xlabel("Sentiment Score (-1 Negative · 0 Neutral · +1 Positive, unitless)")
     ax.set_title(title, loc="left", pad=30)
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
 
@@ -134,7 +135,7 @@ def plot_sentiment_by_dimension(
         ax.text(val + offset, bar.get_y() + bar.get_height() / 2,
                 f"{val:+.2f}", va="center", ha=ha, fontsize=9)
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · Synthetic reviews (n configured per run)")
+    _add_source(fig, _source_line(n_reviews, "Lexicon-based multi-aspect sentiment scoring"))
     return _save(fig, out_path)
 
 
@@ -147,6 +148,7 @@ def plot_sentiment_by_segment(
     dimensions: Optional[list] = None,
     title: str = "Sentiment Differences Across Audience Segments",
     subtitle: str = "Where each persona loves the brand and where it disappoints",
+    n_reviews: Optional[int] = None,
 ) -> Path:
     if by_segment.empty:
         fig, ax = plt.subplots()
@@ -166,13 +168,13 @@ def plot_sentiment_by_segment(
         ax.bar(x + i * width - 0.4 + width / 2, df[dim], width=width, label=dim, color=cmap(i))
     ax.set_xticks(x)
     ax.set_xticklabels(df.index, rotation=0)
-    ax.set_ylabel("Average Sentiment Score")
+    ax.set_ylabel("Average Sentiment Score (unitless, range -1 to +1)")
     ax.axhline(0, color="#444", linewidth=0.6)
     ax.set_title(title, loc="left", pad=30)
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12),
               ncol=min(3, n_dim), frameon=False, fontsize=8)
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · KMeans on TF-IDF + behavioural features")
+    _add_source(fig, _source_line(n_reviews, "KMeans segments × sentiment dimensions"))
     return _save(fig, out_path)
 
 
@@ -183,8 +185,9 @@ def plot_segment_share(
     assignments: pd.DataFrame,
     segment_profile: pd.DataFrame,
     out_path: Path,
-    title: str = "Audience Segmentation",
+    title: str = "Audience Segmentation (Synthetic — Illustrative Only)",
     subtitle: str = "Four behavioural clusters extracted from review text + ratings + platform",
+    n_reviews: Optional[int] = None,
 ) -> Path:
     counts = (
         assignments["cluster_id"].value_counts(normalize=True).sort_index() * 100
@@ -202,7 +205,7 @@ def plot_segment_share(
     fig, ax = plt.subplots(figsize=(9, 4.5))
     bars = ax.barh(labels, counts.values, color=PALETTE["primary"], edgecolor="white")
     ax.set_xlim(0, max(counts.values) * 1.25)
-    ax.set_xlabel("Share of Reviews (%)")
+    ax.set_xlabel("Share of Reviews (%, within synthetic corpus)")
     ax.set_title(title, loc="left", pad=30)
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
     ax.invert_yaxis()
@@ -216,7 +219,7 @@ def plot_segment_share(
         f"→ Insight: Segment {counts.idxmax()} dominates with "
         f"{counts.max():.1f}% share — prioritise ad targeting there.",
     )
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · KMeans on TF-IDF + OneHot(platform, age) + rating")
+    _add_source(fig, _source_line(n_reviews, "KMeans on TF-IDF + OneHot(platform, age) + rating"))
     return _save(fig, out_path)
 
 
@@ -226,10 +229,24 @@ def plot_segment_share(
 def plot_topic_share(
     topics: pd.DataFrame,
     out_path: Path,
-    title: str = "Core Discussion Topics",
+    title: str = "Core Discussion Topics (LLM + TF-IDF Cross-Check)",
     subtitle: str = "Five themes automatically extracted from consumer reviews",
+    n_reviews: Optional[int] = None,
 ) -> Path:
-    if topics.empty or "share_estimate" not in topics.columns:
+    # 兼容真实 LLM 输出字段差异：real LLM（OpenAI / GLM / DeepSeek）未必给出
+    # "topic_label_cn"，可能用 "name" / "label" / "title"。统一兜底到 topic_label_cn。
+    if not topics.empty:
+        rename_map = {
+            "name": "topic_label_cn",
+            "label": "topic_label_cn",
+            "title": "topic_label_cn",
+            "weight": "share_estimate",
+            "share": "share_estimate",
+            "ratio": "share_estimate",
+        }
+        topics = topics.rename(columns={k: v for k, v in rename_map.items() if k in topics.columns})
+
+    if topics.empty or "share_estimate" not in topics.columns or "topic_label_cn" not in topics.columns:
         fig, ax = plt.subplots(figsize=(9, 4.5))
         ax.text(0.5, 0.5,
                 "No topic data available — increase review volume or "
@@ -250,7 +267,7 @@ def plot_topic_share(
     bars = ax.barh(df["topic_label_cn"], df["share_estimate"] * 100,
                    color=PALETTE["accent"], edgecolor="white")
     ax.set_xlim(0, max(df["share_estimate"] * 100) * 1.35)
-    ax.set_xlabel("Share of Voice (%)")
+    ax.set_xlabel("Share of Voice (%, within synthetic corpus)")
     ax.set_title(title, loc="left", pad=30)
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
 
@@ -268,7 +285,7 @@ def plot_topic_share(
             f"{top['share_estimate']*100:.1f}% share — align content strategy with it.",
         )
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · LLM topic extraction + TF-IDF cross-check")
+    _add_source(fig, _source_line(n_reviews, "LLM topic extraction + TF-IDF cross-check"))
     return _save(fig, out_path)
 
 
@@ -278,8 +295,9 @@ def plot_topic_share(
 def plot_weekly_trend(
     weekly_stats: pd.DataFrame,
     out_path: Path,
-    title: str = "Weekly Sentiment Trend",
+    title: str = "Weekly Sentiment Trend (Synthetic — Illustrative Only)",
     subtitle: str = "Average sentiment (line) and review volume (bars) over time",
+    n_reviews: Optional[int] = None,
 ) -> Path:
     fig, ax = plt.subplots(figsize=(10.5, 4.8))
     ax.plot(weekly_stats["week"], weekly_stats["avg_sentiment"],
@@ -288,13 +306,13 @@ def plot_weekly_trend(
     ax.fill_between(weekly_stats["week"], 0, weekly_stats["avg_sentiment"],
                     color=PALETTE["primary"], alpha=0.08)
     ax.axhline(0, color="#444", linewidth=0.5, linestyle="--")
-    ax.set_ylabel("Avg Sentiment Score")
+    ax.set_ylabel("Avg Sentiment Score (unitless, range -1 to +1)")
     ax.set_ylim(-1, 1)
 
     ax2 = ax.twinx()
     ax2.bar(weekly_stats["week"], weekly_stats["volume"],
             width=5, alpha=0.25, color=PALETTE["neutral"], label="Review Volume")
-    ax2.set_ylabel("Number of Reviews")
+    ax2.set_ylabel("Number of Reviews (count)")
     ax2.grid(False)
 
     ax.set_title(title, loc="left", pad=30)
@@ -302,7 +320,7 @@ def plot_weekly_trend(
     ax.legend(loc="upper left", frameon=False)
     ax2.legend(loc="upper right", frameon=False)
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · Weekly aggregation with rolling-slope labelling")
+    _add_source(fig, _source_line(n_reviews, "Weekly aggregation + rolling linear slope"))
     return _save(fig, out_path)
 
 
@@ -312,8 +330,9 @@ def plot_weekly_trend(
 def plot_funnel(
     stage_counts: pd.DataFrame,
     out_path: Path,
-    title: str = "Marketing Conversion Funnel",
+    title: str = "Marketing Conversion Funnel — Soft Funnel (Not Real Behavioural Conversion)",
     subtitle: str = "Five-stage soft funnel inferred from review signals (top-down: Awareness → Repurchase)",
+    n_reviews: Optional[int] = None,
 ) -> Path:
     if stage_counts.empty or stage_counts["count"].sum() == 0:
         fig, ax = plt.subplots()
@@ -325,7 +344,7 @@ def plot_funnel(
     max_count = max(counts) or 1
     n = len(stages)
 
-    fig, ax = plt.subplots(figsize=(8.5, 5.5))
+    fig, ax = plt.subplots(figsize=(8.5, 6.2))
     ax.set_xlim(-0.35, 1.25)
     ax.set_ylim(-0.5, n - 0.5)
     ax.axis("off")
@@ -380,7 +399,14 @@ def plot_funnel(
                 f"({worst_conv:.0%} retention) — focus intervention there.",
             )
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · Soft funnel from review text + rating")
+    # 漏斗专属声明：不是真实行为转化数据
+    fig.text(
+        0.5, -0.18,
+        "Soft funnel — inferred from review text + rating only; "
+        "not real impressions / clicks / orders.",
+        ha="center", va="top", fontsize=8, color="#a04646", style="italic",
+    )
+    _add_source(fig, _source_line(n_reviews, "Soft funnel from review text + rating"))
     return _save(fig, out_path)
 
 
@@ -390,17 +416,18 @@ def plot_funnel(
 def plot_roi_by_segment(
     roi_df: pd.DataFrame,
     out_path: Path,
-    title: str = "Predicted ROI by Audience Segment",
+    title: str = "Illustrative ROI Index by Audience Segment (Synthetic — Illustrative Only)",
     subtitle: str = "Expected return on a CNY 5 user acquisition cost, "
-                    "based on sentiment + repurchase signals",
+                    "based on sentiment + repurchase signals (NOT a real causal ROI)",
+    n_reviews: Optional[int] = None,
 ) -> Path:
-    fig, ax = plt.subplots(figsize=(9, 4.8))
+    fig, ax = plt.subplots(figsize=(9, 5.0))
     colors = [PALETTE["good"] if v >= 0 else PALETTE["bad"] for v in roi_df["expected_roi"]]
     bars = ax.bar(roi_df["cluster_id"].astype(str), roi_df["expected_roi"],
                   color=colors, edgecolor="white")
     ax.axhline(0, color="#444", linewidth=0.6)
-    ax.set_xlabel("Segment ID")
-    ax.set_ylabel("Expected ROI (revenue / cost)")
+    ax.set_xlabel("Segment ID (from KMeans, see segmentation.py)")
+    ax.set_ylabel("Illustrative ROI Index (unitless ratio: revenue / cost − 1)")
     ax.set_title(title, loc="left", pad=30)
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
 
@@ -415,10 +442,26 @@ def plot_roi_by_segment(
         worst = roi_df.loc[roi_df["expected_roi"].idxmin()]
         _add_insight(
             fig,
-            f"→ Insight: Segment {int(best['cluster_id'])} has the highest ROI "
+            f"→ Insight: Segment {int(best['cluster_id'])} has the highest index "
             f"({best['expected_roi']:+.2f}); Segment {int(worst['cluster_id'])} "
             f"the lowest ({worst['expected_roi']:+.2f}).",
         )
 
-    _add_source(fig, "Source: ConsumerInsight-AI pipeline · Ridge regression on soft-conversion proxy")
+    _add_source(fig, _source_line(n_reviews, "Ridge regression on soft-conversion proxy (illustrative only)"))
     return _save(fig, out_path)
+
+
+# ---------------------------------------------------------------------------
+# Source-line helpers
+# ---------------------------------------------------------------------------
+def _source_line(n_reviews: Optional[int], method: str) -> str:
+    """Build a standard 'Source: synthetic reviews (n=xxx) · method' line.
+
+    If ``n_reviews`` is None, falls back to a generic marker so the
+    chart still carries an honest provenance tag.
+    """
+    if n_reviews is None or n_reviews <= 0:
+        n_str = "n unknown"
+    else:
+        n_str = f"n={n_reviews}"
+    return f"Source: synthetic reviews ({n_str}) · {method}"

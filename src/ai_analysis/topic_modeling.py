@@ -81,26 +81,23 @@ class TopicModeler:
     # ------------------------------------------------------------------
     def _tfidf_keywords(self, corpus: List[str], top_k: int = 15) -> pd.DataFrame:
         """Return top-K TF-IDF keywords for the whole corpus."""
-        # Add a small Chinese stop-word list inline to keep deps minimal
-        stop_words = [
-            "的", "了", "和", "是", "在", "就", "都", "也", "很", "有",
-            "我", "你", "他", "她", "它", "我们", "你们", "他们",
-            "这", "那", "这个", "那个", "一个", "一种", "一些",
-            "啊", "吗", "呢", "吧", "嗯", "哈", "哦", "呀",
+        # 中文停用词只在 word analyzer 下生效 —— char_wb + ngram 场景下 sklearn
+        # 会静默忽略 stop_words 并打 UserWarning。这里改用预处理阶段清洗语料，
+        # 既真正生效，又不依赖 jieba 这类分词器。
+        stop_chars = set("的了和是在就都也很有我你他她它这那一个一些啊吗呢吧嗯哈哦呀是也就")
+        cleaned_corpus = [
+            "".join(ch for ch in doc if ch not in stop_chars) for doc in corpus
         ]
-        # Use character-level TF-IDF for Chinese to avoid jieba dependency
-        try:
-            vec = TfidfVectorizer(
-                analyzer="char_wb",
-                ngram_range=(2, 4),
-                max_features=2000,
-                stop_words=stop_words,
-            )
-        except TypeError:
-            # scikit-learn <1.0 doesn't accept stop_words for char_wb
-            vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), max_features=2000)
-        vec.fit(corpus)
-        scores = vec.transform(corpus).sum(axis=0).A1
+        # 全部是停用字会导致空字符串，TF-IDF 会抛 ValueError；退化到原语料。
+        if all(not c.strip() for c in cleaned_corpus):
+            cleaned_corpus = corpus
+        # ngram_range=(2, 3) 输出 char-2-grams + char-3-grams，
+        # 让 word-level LLM 关键词（多数 2-3 字）能与之做精确匹配，
+        # 用于在 eval_topic_llm_vs_tfidf 中计算 overlap_ratio / Jaccard。
+        vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 3), max_features=2000)
+        vec.fit(cleaned_corpus)
+        # 用同一份清洗语料 transform，保证 vocab 与统计对齐。
+        scores = vec.transform(cleaned_corpus).sum(axis=0).A1
         vocab = vec.get_feature_names_out()
         order = scores.argsort()[::-1][:top_k]
         return pd.DataFrame(

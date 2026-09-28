@@ -30,6 +30,11 @@ import pandas as pd
 class FunnelResult:
     stage_counts: pd.DataFrame
     stage_summary: str
+    disclaimer: str = (
+        "Soft funnel inferred from review text, NOT real behavioural "
+        "conversion data (no impressions / clicks / orders). Treat as "
+        "directional only."
+    )
 
 
 class FunnelAnalyzer:

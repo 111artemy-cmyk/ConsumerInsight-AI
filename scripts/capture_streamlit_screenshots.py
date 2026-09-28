@@ -1,11 +1,13 @@
 """Capture Streamlit dashboard screenshots for the README.
 
 Launches ``streamlit run app/streamlit_app.py`` in headless mode, then uses
-Playwright (Chromium) to visit each section and save a PNG. Run with::
+Playwright (Chromium) to visit each of the 10 sidebar sections and save a
+PNG. Run with::
 
     python scripts/capture_streamlit_screenshots.py
 
-Outputs ``docs/screenshots/01_overview.png`` … ``04_funnel.png``.
+Outputs ``docs/screenshots/01_overview.png`` … ``10_methodology.png``
+(file numbering matches the sidebar section order 1 → 10).
 """
 
 from __future__ import annotations
@@ -35,6 +37,21 @@ def _wait_for_port(host: str, port: int, timeout_s: float = 60.0) -> None:
         except OSError:
             time.sleep(1.0)
     raise TimeoutError(f"Streamlit did not start on {host}:{port} within {timeout_s}s")
+
+
+# 10 个 sidebar section → 截图文件名。顺序与 app/streamlit_app.py 的 radio 列表一致。
+TARGETS: list[tuple[str, str]] = [
+    ("01_overview.png",      "1. 项目概览"),
+    ("02_data.png",          "2. 数据概览"),
+    ("03_sentiment.png",     "3. 多维度情感"),
+    ("04_topics.png",        "4. 核心话题"),
+    ("05_personas.png",      "5. 消费者 Persona"),
+    ("06_segmentation.png",  "6. 受众细分"),
+    ("07_funnel.png",        "7. 趋势 & 漏斗"),
+    ("08_roi.png",           "8. ROI 预估"),
+    ("09_creatives.png",     "9. 营销文案候选"),
+    ("10_methodology.png",   "10. 方法说明"),
+]
 
 
 def main() -> int:
@@ -67,16 +84,7 @@ def main() -> int:
             browser = p.chromium.launch(headless=True)
             context = browser.new_context(viewport={"width": 1400, "height": 900})
 
-            targets = [
-                ("01_overview.png", "1. 项目概览"),
-                ("02_sentiment.png", "3. 多维度情感"),
-                ("03_segmentation.png", "6. 受众细分"),
-                ("04_funnel.png", "7. 趋势 & 漏斗"),
-                ("05_roi.png", "8. ROI 预估"),
-                ("06_creatives.png", "9. 营销文案候选"),
-            ]
-
-            for filename, label in targets:
+            for filename, label in TARGETS:
                 page = context.new_page()
                 page.goto("http://127.0.0.1:8501/", wait_until="domcontentloaded")
                 # Streamlit re-renders on every interaction. Click the sidebar

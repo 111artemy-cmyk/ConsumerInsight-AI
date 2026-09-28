@@ -131,16 +131,29 @@ clustering algorithm) without touching the rest of the system.
   linear slope** of `overall` sentiment; weeks are labelled as
   *rising / falling / stable*.
 
-### 4.6 Soft Funnel & ROI
+### 4.6 Soft Funnel & Illustrative ROI
 
 * `FunnelAnalyzer` defines five proxy stages and counts reviews whose
   text contains stage-specific keywords (or whose rating & sentiment
-  cross a threshold for "satisfied").
+  cross a threshold for "satisfied"). Stages are nested (every later
+  stage is a subset of the previous one) so the funnel is guaranteed
+  to be monotonically non-increasing. The result is a **soft funnel
+  inferred from review text, NOT real behavioural conversion** — the
+  disclaimer is exposed on `FunnelResult.disclaimer` and rendered on
+  the funnel chart.
 * `ROIPredictor` constructs a `soft_conversion` target as
   `sigmoid(1.0·overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)`
   and fits a Ridge regression to obtain interpretable coefficients.
-  Per-segment ROI is then computed as
-  `(predicted_conversion · ARPU · volume − CAC · volume) / (CAC · volume)`.
+  Per-segment **expected_roi / illustrative_roi_index** is then computed as
+  `(predicted_conversion · ARPU · volume − CAC · volume) / (CAC · volume)`,
+  gated by `baseline_soft_conversion = 0.5` to avoid the sigmoid
+  baseline reporting a misleading +11× on zero-signal rows.
+* All cost / revenue assumptions live in `src/config.py::ROIConfig`
+  (`baseline_arpu = ¥120`, `cost_per_user = ¥5`,
+  `baseline_soft_conversion = 0.5`, `roi_cv_folds = 5`). The output
+  is renamed to **Illustrative ROI Index** in the chart title, report
+  heading and source line to make it clear this is a teaching /
+  portfolio artefact, not a real business KPI.
 
 ### 4.7 Campaign Generation
 
@@ -154,7 +167,12 @@ clustering algorithm) without touching the rest of the system.
 
 The pipeline ships with a **Mock LLM** for offline reproducibility and
 an optional **OpenAI-compatible backend** for higher-fidelity results.
-We evaluate the framework from three angles:
+Beyond the qualitative comparison below, the project includes a
+dedicated **evaluation layer** (`src/evaluation.py`) so every metric is
+traceable to a real run, with the circular-validation risks called
+out in writing.
+
+### 5.1 Backend comparison
 
 | Dimension              | Mock LLM                                  | OpenAI-compatible LLM               |
 |------------------------|-------------------------------------------|--------------------------------------|
@@ -164,9 +182,20 @@ We evaluate the framework from three angles:
 | Topic coherence        | Heuristic + keyword overlap               | Better semantic abstraction          |
 | Persona richness       | Template-based, four fixed cards          | Free-form, higher diversity          |
 
-For admission-portfolio purposes, the **Mock LLM run is fully
-reproducible** and demonstrates that the engineering scaffolding is
-correct. Replacing the backend is a one-line environment change.
+### 5.2 Honest evaluation primitives (`src/evaluation.py`)
+
+| # | Primitive | What it measures |
+|---|---|---|
+| 1 | `eval_clustering(X, labels_pred, labels_true)` | Silhouette score on the predicted clusters; ARI / NMI against the synthetic `user_segment` label (a "circular validation" — high scores mean "the clusterer rediscovered the synthetic structure", NOT "the clusterer found real consumer segments"). |
+| 2 | `eval_topic_llm_vs_tfidf(llm_keywords, tfidf_keywords)` | Set-intersection between LLM-extracted topic keywords and TF-IDF char-2-3-grams; reported as `overlap_ratio` and `Jaccard`. |
+| 3 | `eval_sentiment_vs_rating(per_review)` | Pearson + Spearman correlation between the LLM-derived `overall` sentiment and the user-given 1-5 star `rating`. On synthetic data both come from the same polarity lexicon, so a high correlation is *expected*, not impressive. |
+| 4 | `eval_roi_cv(features, target, n_folds)` | K-fold CV (default 5 folds) with Ridge on the per-review ROI proxy; reports R², MAE and per-feature mean coefficients. R² near 1 is *expected* because the proxy is a deterministic function of the features — the CV is reported so the reviewer can sanity-check coefficient signs and magnitudes. |
+| 5 | `run_stability(n_seeds, n_reviews)` | Re-runs the full pipeline with `n_seeds` distinct RANDOM_SEED values (default 10) and aggregates `largest_segment_share_pct`, `peak_roi_index`, `funnel_worst_retention` plus categorical modes for `largest_segment_id`, `peak_roi_segment` and `funnel_worst_stage`. |
+
+The single-seed outputs are written to `outputs/reports/pipeline_report.md`
+(§8 Evaluation); the multi-seed output is written to
+`outputs/reports/stability_report.md` by the standalone script
+`scripts/run_stability_eval.py`.
 
 ## 6. Limitations & Future Work
 
@@ -174,13 +203,25 @@ correct. Replacing the backend is a one-line environment change.
   deployment would require scraping real reviews (e.g. via Selenium or
   the platforms' open APIs) and applying the same cleaning pipeline.
 * **Soft funnel.** In the absence of impression/click logs, the funnel
-  is constructed from review text. Future work would integrate ad-side
-  data (曝光 / 点击 / 转化) and use **causal / uplift models**.
-* **ROI model.** The Ridge model is illustrative; a production version
-  would use **Bayesian hierarchical models** or **transformer-based
-  uplift** and calibrate against real revenue.
+  is constructed from review text (a *soft funnel*, explicitly labelled
+  in chart titles and report copy). Future work would integrate
+  ad-side data (曝光 / 点击 / 转化) and use **causal / uplift models**.
+* **Illustrative ROI index.** The Ridge model is illustrative; a
+  production version would use **Bayesian hierarchical models** or
+  **transformer-based uplift** and calibrate against real revenue.
+  All cost / revenue assumptions are centralised in
+  `src/config.py::ROIConfig` so a real-ROI plug-in is a one-line swap.
+* **Simulated CTR.** `simulated_ctr` is a uniform sample in
+  `[0.04, 0.09)` from `MockLLMClient`, exposed on `CampaignGenerator`'s
+  output as a **simulated** click-through rate. It is NOT a real CTR
+  prediction; it is used only to derive channel-relative budget
+  weights.
 * **Persona validation.** Personas are LLM-synthesised; validating them
   against downstream A/B test lift is left as future work.
+* **ARI / NMI as circular checks.** Comparing clusters against
+  `user_segment` is a sanity check on whether the clusterer recovers the
+  synthetic structure — high scores do NOT imply the clusterer would
+  find real segments on production data.
 
 ## 7. Conclusion
 

@@ -5,6 +5,16 @@ synthetic dataset (~1500 reviews across 小红书 / 微博 / 天猫).
 The generator is **deterministic** (controlled by ``RANDOM_SEED``) so
 that every reviewer running the pipeline sees the same numbers.
 
+Brand-name disclaimer
+---------------------
+The synthetic review corpus uses "花西子 Florasis" as the example brand
+voice (see `src/config.py::IndustryConfig`). **This project is not
+affiliated with, endorsed by, or related to the real Florasis / 花西子
+brand** — the brand name is used purely as a stylistic placeholder so
+the generated reviews read like real-world Chinese beauty reviews. All
+reviews are programmatically synthesised; no real customer data is
+involved and no statement is made about the real brand or its products.
+
 The loader exposes a single function :func:`load_reviews` that returns a
 cleaned ``pandas.DataFrame`` with the following columns:
 
@@ -266,6 +276,7 @@ def load_reviews(
     *,
     use_synthetic: bool = True,
     n_synthetic: int = 1500,
+    seed: int = RANDOM_SEED,
 ) -> pd.DataFrame:
     """Load review data from CSV, falling back to synthetic data.
 
@@ -280,13 +291,17 @@ def load_reviews(
         data on the fly.  Set False to require a real file.
     n_synthetic:
         How many synthetic rows to generate when falling back.
+    seed:
+        Random seed for the synthetic generator. Used by the stability
+        evaluation script to re-run the pipeline with multiple seeds.
+        Ignored when ``csv_path`` is provided.
     """
     if csv_path is not None and Path(csv_path).exists():
         df = pd.read_csv(csv_path)
         return clean_reviews(df)
     if not use_synthetic:
         raise FileNotFoundError(f"CSV not found: {csv_path}")
-    df = generate_synthetic_reviews(n=n_synthetic)
+    df = generate_synthetic_reviews(n=n_synthetic, seed=seed)
     return clean_reviews(df)
 
 

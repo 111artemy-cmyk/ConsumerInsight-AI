@@ -19,12 +19,16 @@ from .base import BaseLLMClient, LLMResponse
 
 
 def is_openai_available() -> bool:
-    """Return True if the openai package *and* an API key are present."""
+    """Return True if the openai package *and* an API key are present.
+
+    仅设 OPENAI_BASE_URL 而没有 API key 时，OpenAIClient 会在请求时
+    拿到 401。这里要求 key 存在才视为可用。
+    """
     try:
         import openai  # noqa: F401
     except Exception:
         return False
-    return bool(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_BASE_URL"))
+    return bool(os.getenv("OPENAI_API_KEY"))
 
 
 class OpenAIClient(BaseLLMClient):

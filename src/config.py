@@ -54,12 +54,23 @@ class LLMConfig:
 # ---------------------------------------------------------------------------
 # Domain configuration
 # ---------------------------------------------------------------------------
+# IMPORTANT — Brand name disclaimer
+# ---------------------------------
+# ``brand_name = "花西子 Florasis"`` is used **only** as a realistic
+# placeholder so the synthetic reviews read like a coherent brand voice.
+# This project has NO affiliation, partnership, sponsorship or business
+# relationship with the real Florasis / 花西子 brand. The name is used
+# purely for stylistic authenticity of the synthetic data, and all
+# downstream numbers (reviews, segments, ROI, CTR, funnel) are produced
+# by code on synthetic text — they are not statements about the real
+# brand or its products.
+# ---------------------------------------------------------------------------
 @dataclass
 class IndustryConfig:
     """Brand- and industry-level configuration used throughout the pipeline."""
 
     industry: str = "美妆 (Beauty / Cosmetics)"
-    brand_name: str = "花西子 Florasis"
+    brand_name: str = "花西子 Florasis"  # placeholder — see disclaimer above
     target_markets: List[str] = field(
         default_factory=lambda: ["中国大陆", "中国香港", "海外华人市场"]
     )
@@ -69,6 +80,40 @@ class IndustryConfig:
     campaign_objective: str = (
         "提升 25-35 岁女性用户对新品（空气蜜粉）的购买转化率"
     )
+
+
+# ---------------------------------------------------------------------------
+# Illustrative ROI configuration
+# ---------------------------------------------------------------------------
+@dataclass
+class ROIConfig:
+    """Cost / revenue assumptions for the illustrative ROI index.
+
+    IMPORTANT
+    ----------
+    All numbers here are **illustrative teaching assumptions**, not real
+    business figures. They exist so the pipeline can produce a numeric
+    ROI index that responds to sentiment / repurchase cues. A reviewer
+    who needs ground-truth ROI should plug in real ARPU, CAC and
+    conversion data; the rest of the pipeline will pick them up
+    automatically.
+
+    Formulas
+    --------
+    * soft_conversion  = sigmoid( 1.0·overall + 0.6·high_rating
+                                  + 0.3·long_text + 0.2·repurchase_intent )
+    * effective_conv   = max(0, soft_conversion - baseline_soft_conversion)
+    * per_review_revenue = effective_conv · baseline_arpu
+    * per_review_cost    = cost_per_user
+    * per_review_roi     = (revenue − cost) / cost
+    * segment_roi_index  = mean(per_review_roi)   (a.k.a. expected_roi)
+    """
+
+    baseline_arpu: float = 120.0      # 假设客单价 (CNY / user)
+    cost_per_user: float = 5.0        # 假设单用户获客成本 (CNY)
+    baseline_soft_conversion: float = 0.5  # sigmoid 的对称基线 (见源码注释)
+    roi_cv_folds: int = 5             # ROI 回归 K-fold CV 的折数
+    roi_cv_random_state: int = 42     # 交叉验证的随机种子，保证可复现
 
 
 # ---------------------------------------------------------------------------

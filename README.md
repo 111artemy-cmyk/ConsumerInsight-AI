@@ -1,26 +1,18 @@
 # ConsumerInsight-AI
 
-> *End-to-End LLM + Marketing Analytics for Automated Consumer Insight & Campaign Generation.*
+> **An end-to-end LLM + Marketing Analytics pipeline that turns social-media reviews into segmented personas, soft-funnel diagnostics, an illustrative ROI index, and persona-targeted campaign copy.**
 
-> 🎯 Built as a portfolio project for application to the **University of Macau (UM) Master of Science in Data Science** programme, covering both the **Artificial Intelligence** and **Marketing Analytics** tracks.
+![Illustrative ROI Index by Audience Segment](outputs/figures/07_roi_by_segment.png)
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](#license)
-[![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-success)](#quickstart)
-[![Reproducible](https://img.shields.io/badge/reproducible-100%25-brightgreen)](#data-provenance)
-[![No API needed](https://img.shields.io/badge/API%20key-not%20required-orange)](#built-with)
+[![CI](https://img.shields.io/badge/CI-pending-lightgrey)](#-engineering--ci)
+[![Pipeline](https://img.shields.io/badge/pipeline-end--to--end-success)](#-quickstart)
+[![No API key](https://img.shields.io/badge/API%20key-not%20required-orange)](#-built-with)
 
-[中文版](README.zh.md) · [Project Overview](#project-overview)
+[中文版](README.zh.md) · [Project Overview](#-project-overview)
 
----
-
-<a id="about-this-project"></a>
-
-## 👋 About this project
-
-Built from scratch by **Xintong Wang** (王欣桐), a sociology graduate applying to UM's MSc in Data Science with no prior Python or marketing background.
-
-The project reimplements a typical consumer-research workflow (sentiment → segmentation → funnel → ROI → copy) as a reproducible, LLM-augmented pipeline. Every chart, test, and chart label is written to be readable to a non-CS reviewer — and to the author herself when she revisits the code in six months.
+> **All numbers in this repository come from programmatically generated synthetic reviews.** No real customer data is used, no real LLM API is required for the default run, and no number in any chart or report should be read as a real-world business KPI. The pipeline exists to demonstrate methodology and engineering. See [Limitations](#-limitations) for the full disclaimer.
 
 ---
 
@@ -28,21 +20,62 @@ The project reimplements a typical consumer-research workflow (sentiment → seg
 
 ## 📊 Project at a Glance
 
-| Metric | Value (typical run) |
-|---|---|
-| Reviews processed | **1500** (multi-platform, synthetic) |
-| Audience segments identified | **4** (largest ~37% share) |
-| Consumer personas | **4** (each with a `why_matters` strategic note) |
-| Core discussion topics | **5** (skin feel · packaging · sensitivity · shade · logistics) |
-| Marketing variants generated | **12** (3 channels × 4 personas) |
-| Predicted ROI peak | **~+19-20×** (highest segment) |
-| Largest funnel drop-off | **Repurchase stage** (~40-45% retention) |
-| Visualisations | **7 charts** in `outputs/figures/` |
-| Markdown report | **`outputs/reports/pipeline_report.md`** |
+Every value below is reproducible: re-run `python scripts/run_pipeline.py --n 1500 --backend mock` after `git clone`. The "Single seed (42)" column comes from that exact command and matches `outputs/reports/pipeline_report.md` byte-for-byte. The "Multi-seed (10×1500)" column comes from `python scripts/run_stability_eval.py --seeds 1,2,3,4,5,6,7,8,9,42 --n-reviews 1500` (≈21 s) and matches `outputs/reports/stability_report.md` byte-for-byte.
 
-> The numbers above are deterministic at the default settings (`RANDOM_SEED=42` in `src/config.py`). Change the seed or sample size to explore variance.
->
-> End-to-end runtime: **~5-10 seconds** on CPU. See [`docs/TECHNICAL_REPORT.md`](docs/TECHNICAL_REPORT.md) for details.
+| Metric | Single seed (42) | Multi-seed (10×1500) mean ± std | Source |
+|---|---|---|---|
+| Reviews processed | **1500** | 1500 (fixed) | `data/processed/sample_processed.csv` |
+| Audience segments (KMeans) | **4** | 4 (fixed) | `outputs/figures/03_segment_share.png` |
+| Largest segment share (%) | **41.6** (segment 2) | **35.78 ± 3.56** (range 32.87–42.67) | `pipeline_report.md` §2 / `stability_report.md` |
+| Consumer personas | **4** | 4 (fixed) | `pipeline_report.md` §4 |
+| Core discussion topics | **5** | 5 (fixed) | `pipeline_report.md` §3 |
+| Marketing variants | **12** (3 channels × 4 personas) | 12 (fixed) | `pipeline_report.md` §7 |
+| **Illustrative ROI index** — peak value | **+7.901** | **7.867 ± 0.046** (range 7.799–7.959) | `pipeline_report.md` §6 / `stability_report.md` |
+| **Illustrative ROI index** — peak segment id | **0** | **0 (mode 5×)**, 3:2×, 1:2×, 2:1× | `pipeline_report.md` §6 / `stability_report.md` |
+| **Soft funnel** worst retention | **0.409** | **0.401 ± 0.018** (range 0.375–0.425) | `pipeline_report.md` §5 / `stability_report.md` |
+| **Soft funnel** worst stage | **`05_Repurchase`** | **`05_Repurchase` in 10/10 seeds** | `pipeline_report.md` §5 / `stability_report.md` |
+| **Simulated CTR score** range | uniform `[0.04, 0.09)` | same (deterministic per seed) | `pipeline_report.md` §7 |
+| Silhouette score | **+0.1507** | (single-seed only) | `pipeline_report.md` §8.1 |
+| ARI vs synthetic `user_segment` | **+0.0467** *(circular — see Limitations)* | (single-seed only) | `pipeline_report.md` §8.1 |
+| NMI vs synthetic `user_segment` | **+0.0664** *(circular)* | (single-seed only) | `pipeline_report.md` §8.1 |
+| Pearson sentiment ↔ rating | **+0.8327** *(same lexicon on both sides)* | (single-seed only) | `pipeline_report.md` §8.3 |
+| Spearman sentiment ↔ rating | **+0.7820** | (single-seed only) | `pipeline_report.md` §8.3 |
+| ROI CV R² (per-review proxy) | **+0.9793** *(proxy is a deterministic function of features)* | (single-seed only) | `pipeline_report.md` §8.4 |
+| ROI CV MAE | **0.3180** | (single-seed only) | `pipeline_report.md` §8.4 |
+| Visualisations | **7 charts** in `outputs/figures/` | — | `outputs/figures/*.png` |
+| Markdown report | `outputs/reports/pipeline_report.md` | — | §8 evaluation + 7 sections |
+| Stability report | `outputs/reports/stability_report.md` | — | 10 seeds × 1500 |
+
+> "Single seed" and "Multi-seed" are two different runs. Both sets of numbers above come from real `python` invocations on this machine and are committed to the repository as evidence (see `outputs/reports/`). End-to-end runtime: **~5-10 s** for the single-seed pipeline, **~21 s** for the default 10-seed stability report. Note that the largest segment id can differ between single-seed (segment 2) and multi-seed (mode 0) runs — that metric is sampling-sensitive and is **not** a stable business KPI.
+
+---
+
+<a id="limitations"></a>
+
+## ⚠️ Limitations
+
+This project is honest about what it is not. Read this section before drawing conclusions from any number above.
+
+* **All review text is synthetic.** The 1500-review corpus is produced by `src/data_loader.py::generate_synthetic_reviews()` from 50 hand-written seed templates. There are no real customers, no scraped reviews, no third-party data. The pipeline's outputs describe properties of this synthetic corpus — nothing more.
+* **The default LLM is a rule-based Mock.** No API key is required to reproduce any number in this README. The Mock client implements a small lexicon + intensifier/negator rule system (see `src/llm/mock_client.py`) and is *not* a substitute for a real LLM; it is a deterministic offline baseline. Any sentence in this repository that begins "the LLM..." refers to whichever backend is configured — default is the Mock.
+* **The "ROI" number is an *Illustrative* ROI Index.** It is computed from `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` and a configurable cost/revenue assumption in `src/config.py::ROIConfig` (defaults: ARPU = ¥120, CAC = ¥5, baseline gate = 0.5). It is *not* a measure of marketing spend return; it is a teaching artefact so the segment-aggregation step has a numeric output.
+* **The "Funnel" is a *Soft* Funnel.** The five stages (Awareness → Interest → Trial → Satisfaction → Repurchase) are inferred from review text via keyword predicates (`src/funnel_analyzer.py`). There are no impressions, clicks, or orders. The funnel chart and report explicitly carry the label `Soft funnel — inferred from review text + rating, not real behavioural conversion`.
+* **Clustering may reflect the synthetic generation template, not real segments.** KMeans is run on `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating`. The synthetic generator itself segments reviews by `user_segment` (学生党/通勤族/成分党/精致妈妈), so ARI / NMI between predicted clusters and `user_segment` is a *circular validation* — high scores would mean "the clusterer rediscovered the synthetic structure", not "the clusterer found real consumer segments".
+* **The "Simulated CTR" is a uniform random sample.** Channel-level `simulated_ctr` is drawn from `Uniform[0.04, 0.09)` inside `MockLLMClient._compose_campaign`. It exists so that the channel-budget-allocation step has a relative-weight input. It is *not* a real CTR prediction.
+
+These limitations are also documented in `docs/TECHNICAL_REPORT.md` §6 and rendered on every chart and in every generated report.
+
+---
+
+<a id="about-this-project"></a>
+
+## 👋 About this project
+
+Built by **Xintong Wang** (王欣桐) as a portfolio piece for the **University of Macau — Master of Science in Data Science** programme (AI track + Marketing Analytics track).
+
+The author is a sociology graduate with no prior Python or marketing experience at the start of the project. The goal was to re-implement a typical consumer-research workflow (sentiment → segmentation → funnel → ROI → copy) as a reproducible, LLM-augmented pipeline with enough documentation that a non-CS reader can follow it.
+
+> **Brand-name disclaimer.** The synthetic review corpus uses "花西子 Florasis" as the example brand voice so the generated text reads like real Chinese beauty reviews. **This project is not affiliated with, endorsed by, or related to the real Florasis / 花西子 brand** — the name is a stylistic placeholder only, and all outputs are derived from synthetic data, not statements about the real brand. See the disclaimer block in `src/config.py::IndustryConfig` for the same statement in code.
 
 ---
 
@@ -50,31 +83,47 @@ The project reimplements a typical consumer-research workflow (sentiment → seg
 
 ## 📸 Streamlit Demo (screenshots)
 
-The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar navigation). All screenshots below are real captures from `streamlit run app/streamlit_app.py`.
+The pipeline ships with an interactive Streamlit dashboard with **10 sidebar sections**, matching the 10 images below. All screenshots are real captures from `streamlit run app/streamlit_app.py`, regenerated by `python scripts/capture_streamlit_screenshots.py`.
 
-### 1. Project overview
+### 1. 项目概览 / Project overview
 
 ![Overview](docs/screenshots/01_overview.png)
 
-### 3. Multi-aspect sentiment
+### 2. 数据概览 / Data overview
 
-![Sentiment](docs/screenshots/02_sentiment.png)
+![Data overview](docs/screenshots/02_data.png)
 
-### 6. Audience segmentation
+### 3. 多维度情感 / Multi-aspect sentiment
 
-![Segmentation](docs/screenshots/03_segmentation.png)
+![Sentiment](docs/screenshots/03_sentiment.png)
 
-### 7. Weekly trend & funnel
+### 4. 核心话题 / Core topics
 
-![Funnel](docs/screenshots/04_funnel.png)
+![Topics](docs/screenshots/04_topics.png)
 
-### 8. Predicted ROI per segment
+### 5. 消费者 Persona / Personas
 
-![ROI](docs/screenshots/05_roi.png)
+![Personas](docs/screenshots/05_personas.png)
 
-### 9. Marketing copy candidates
+### 6. 受众细分 / Audience segmentation
 
-![Creatives](docs/screenshots/06_creatives.png)
+![Segmentation](docs/screenshots/06_segmentation.png)
+
+### 7. 趋势 & 漏斗 / Trends & funnel
+
+![Funnel](docs/screenshots/07_funnel.png)
+
+### 8. ROI 预估 / Illustrative ROI index
+
+![ROI](docs/screenshots/08_roi.png)
+
+### 9. 营销文案候选 / Marketing copy candidates
+
+![Creatives](docs/screenshots/09_creatives.png)
+
+### 10. 方法说明 / Methodology
+
+![Methodology](docs/screenshots/10_methodology.png)
 
 > To launch the live demo: `streamlit run app/streamlit_app.py` → open `http://localhost:8501`.
 
@@ -82,9 +131,11 @@ The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar
 
 <a id="key-visualizations"></a>
 
-## 🎨 Key Visualizations
+## 🎨 Key Visualizations (pipeline outputs)
 
-### Marketing funnel — Awareness → Repurchase
+The same data that powers the Streamlit dashboard above is also exported as static PNGs to `outputs/figures/`. The README reuses **two** of those PNGs in this section to give a non-interactive reader the headline chart:
+
+### Soft funnel — Awareness → Repurchase
 
 ![Funnel](outputs/figures/06_funnel.png)
 
@@ -92,11 +143,11 @@ The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar
 
 ![Segmentation](outputs/figures/03_segment_share.png)
 
-### Predicted ROI — per segment
+### Illustrative ROI index — per segment
 
 ![ROI](outputs/figures/07_roi_by_segment.png)
 
-> All seven charts are in [`outputs/figures/`](outputs/figures/). Each chart carries a data-source line and a bottom insight box (English labels, no emoji).
+> All seven charts are in [`outputs/figures/`](outputs/figures/). Each chart carries a data-source line (`Source: synthetic reviews (n=…)`) and a bottom insight box (English labels, no emoji). The ROI chart is titled "Illustrative ROI Index (Synthetic — Illustrative Only)" and the funnel chart is titled "Soft Funnel (Not Real Behavioural Conversion)". The Streamlit screenshots and the static PNGs cover overlapping content by design — the Streamlit ones are reviewed for reviewers who want to *interact*, the PNGs are reviewed for README-only readers.
 
 ---
 
@@ -112,7 +163,7 @@ The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar
 | **LLM backends** | Pluggable — Mock (default) · OpenAI · GLM · DeepSeek · Moonshot |
 | **Visualisation** | matplotlib |
 | **Web demo** | Streamlit |
-| **Engineering** | pytest · pyproject.toml |
+| **Engineering** | pytest · pyproject.toml · GitHub Actions (see [CI](#-engineering--ci)) |
 
 ---
 
@@ -124,9 +175,9 @@ The pipeline ships with an interactive Streamlit dashboard (10 sections, sidebar
 
 | Layer | Source | Notes |
 |---|---|---|
-| `data/raw/sample_reviews.csv` (50 seed reviews) | Hand-written | Authored in the Florasis brand voice, spanning 4 segments and 3 platforms |
+| `data/raw/sample_reviews.csv` (50 seed reviews) | Hand-written | Authored in a Florasis-style voice — see disclaimer above; spans 4 segments and 3 platforms |
 | `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Expands the 50 seeds into 1500 reviews via templates + keyword substitution |
-| Pipeline outputs | Derived | All charts, reports and copy are computed from the 1500 reviews above |
+| Pipeline outputs | Computed | All charts, reports, and copy are computed from the 1500 reviews above |
 
 **To swap in your own data:**
 
@@ -159,19 +210,38 @@ Key properties:
 
 - **Reproducible by default** — runs offline with the Mock LLM at zero cost
 - **One-variable upgrade** — swap to OpenAI / GLM / DeepSeek via a single environment variable
-- **Interactive** — Streamlit Dashboard for hands-on exploration
+- **Interactive** — Streamlit Dashboard for hands-on exploration (10 sections)
 - **Explainable** — every step is paired with a chart, a Markdown report, and an insight note
+- **Honestly evaluated** — silhouette / ARI / NMI, LLM↔TF-IDF overlap, sentiment↔rating correlation, K-fold CV, multi-seed stability — all numbers from real runs
 
-### What it does (8 steps)
+### What it does (8 steps + 1 evaluation layer)
 
-1. **Multi-aspect sentiment scoring** — 6 product-experience dimensions
-2. **Topic extraction** — 5 themes, LLM + TF-IDF cross-check
+1. **Multi-aspect sentiment scoring** — 6 product-experience dimensions (`Product Quality`, `Value for Money`, `Packaging Design`, `Skin Feel`, `Long Wear`, `Service Experience`; see [Sentiment dimensions vs. topics](#sentiment-dimensions-vs-topics))
+2. **Topic extraction** — 5 themes, LLM + TF-IDF cross-check (`包装设计`, `上脸肤感与持久度`, `性价比`, `色号与妆效`, `敏感肌与刺激`, `物流与服务`; see [Sentiment dimensions vs. topics](#sentiment-dimensions-vs-topics))
 3. **Persona generation** — 4 personas, KMeans + LLM
 4. **Audience segmentation** — KMeans on TF-IDF + behavioural features
 5. **Trend detection** — weekly aggregation + linear slope
-6. **Soft conversion funnel** — Awareness → Interest → Trial → Satisfaction → Repurchase
-7. **ROI prediction** — Ridge regression on soft-conversion signals
-8. **Marketing copy generation** — LLM, multi-channel, multi-variant, with predicted CTR
+6. **Soft conversion funnel** — Awareness → Interest → Trial → Satisfaction → Repurchase *(inferred from review text, NOT real behavioural conversion)*
+7. **Illustrative ROI index** — Ridge regression on soft-conversion signals *(synthetic cost / revenue assumptions, NOT a real business KPI)*
+8. **Marketing copy generation** — LLM, multi-channel, multi-variant, with **simulated CTR** *(uniform sample in `[0.04, 0.09)`, not a real CTR prediction)*
+9. **Evaluation layer (`src/evaluation.py`)** — silhouette / ARI / NMI, LLM↔TF-IDF keyword overlap, sentiment↔rating correlation, K-fold CV for ROI, multi-seed stability (10 seeds by default)
+
+<a id="sentiment-dimensions-vs-topics"></a>
+
+### Sentiment dimensions vs. topics
+
+The pipeline emits two categorically different artefacts that are easy to confuse:
+
+| Sentiment dimensions (6, in `src/config.py::SENTIMENT_DIMENSIONS`) | Core topics (5, returned by `TopicModeler`) |
+|---|---|
+| `Product Quality` — 产品质量（粉质、服帖度、持妆力） | `包装设计` — 视觉设计与国风文化表达 |
+| `Value for Money` — 性价比（价格、促销、赠品） | `上脸肤感与持久度` — 服帖度与全天持妆 |
+| `Packaging Design` — 包装设计（颜值、国风、雕花） | `性价比` — 定价、促销、性价比敏感 |
+| `Skin Feel` — 上脸肤感（服帖、拔干、刺激） | `色号与妆效` — 色号匹配、肤色妆效差异 |
+| `Long Wear` — 持久度（脱妆、氧化、斑驳） | `敏感肌与刺激` — 敏感肌对成分与刺激性的担忧 |
+| `Service Experience` — 服务体验（快递、客服、售后） | `物流与服务` — 快递时效、客服响应、赠品体验 |
+
+Sentiment dimensions give **one numeric score per review per aspect** (in `[-1, +1]`). Topics give **one label per review** indicating which conversation theme it falls into. They are computed by different prompts (`PromptLibrary.SENTIMENT_*` vs `PromptLibrary.TOPIC_*`) and should be reported separately.
 
 ---
 
@@ -189,16 +259,17 @@ ConsumerInsight-AI/
 ├── docs/                         # Documentation
 │   ├── TECHNICAL_REPORT.md       # Academic-style technical report
 │   ├── COURSE_MAPPING.md         # Project capabilities ↔ course mapping
-│   └── ARCHITECTURE.md           # System architecture and data flow
-├── docs/screenshots/              # Streamlit dashboard snapshots (committed)
+│   ├── ARCHITECTURE.md           # System architecture and data flow
+│   └── screenshots/              # 10 dashboard snapshots (1 per Streamlit sidebar section)
 ├── notebooks/                    # Walkthrough notebooks (no LLM required)
 │   └── 01_consumer_basics.py
 ├── outputs/
-│   ├── figures/                  # 7 visualisation charts (committed)
-│   └── reports/                  # Markdown report (gitignored, regenerated)
+│   ├── figures/                  # 7 matplotlib charts (committed)
+│   └── reports/                  # Markdown reports (gitignored, regenerated)
 ├── scripts/
 │   ├── run_pipeline.py                 # CLI entry point
 │   ├── run_all.py                      # One-click run (venv + dependencies)
+│   ├── run_stability_eval.py           # Multi-seed stability evaluation
 │   ├── generate_sample_data.py         # Generate sample data standalone
 │   └── capture_streamlit_screenshots.py # Capture dashboard screenshots for README
 ├── src/
@@ -206,10 +277,11 @@ ConsumerInsight-AI/
 │   ├── llm/                      # Pluggable LLM clients (base / mock / openai)
 │   ├── marketing_analytics/      # Segmentation · ROI · funnel · campaign
 │   ├── visualization/            # matplotlib chart helpers
+│   ├── evaluation.py             # Honest-evaluation primitives
 │   ├── pipeline.py               # Pipeline orchestrator
 │   ├── data_loader.py            # Data loading + synthetic generation
-│   └── config.py                 # Global configuration
-└── tests/                        # Unit tests (pytest)
+│   └── config.py                 # Global configuration (incl. ROIConfig)
+└── tests/                        # Unit tests (pytest, 27 tests)
 ```
 
 ---
@@ -248,7 +320,14 @@ streamlit run app/streamlit_app.py
 
 Open `http://localhost:8501` in your browser to interact with all outputs.
 
-### 4. (Optional) Use a real LLM API
+### 4. Run the multi-seed stability report (optional, ~21 s)
+
+```bash
+python scripts/run_stability_eval.py                # 10 seeds × 1500 reviews
+python scripts/run_stability_eval.py --n-seeds 5 --n-reviews 500
+```
+
+### 5. (Optional) Use a real LLM API
 
 ```bash
 # Windows PowerShell
@@ -269,6 +348,24 @@ Compatible endpoints:
 - **GLM (Zhipu)** — `https://open.bigmodel.cn/api/paas/v4`
 - **DeepSeek** — `https://api.deepseek.com/v1`
 - **Moonshot** — `https://api.moonshot.cn/v1`
+
+---
+
+<a id="deploy"></a>
+
+## ☁️ Deploy (Streamlit Community Cloud)
+
+The Streamlit dashboard is deployment-ready. To publish your fork to Streamlit Community Cloud:
+
+1. Fork this repository on GitHub.
+2. Go to [share.streamlit.io](https://share.streamlit.io/) → **New app** → pick your fork.
+3. **Main file path**: `app/streamlit_app.py`
+4. **Python version**: 3.10 or 3.11 (matches `.github/workflows/ci.yml`).
+5. **Advanced settings → Requirements file**: `requirements.txt` (the platform auto-detects it).
+6. Click **Deploy**. First boot runs the pipeline once and caches results via `@st.cache_resource`, so subsequent visits are instant.
+7. (Optional) In your fork's *Settings → Secrets*, add `OPENAI_API_KEY` / `OPENAI_BASE_URL` if you want to demo with a real LLM instead of the Mock.
+
+> The README does not claim the demo is currently deployed — see [Limitations](#-limitations) on why we keep that promise honest. The deploy recipe above is provided so a reviewer can reproduce it in one click.
 
 ---
 
@@ -301,13 +398,62 @@ Compatible endpoints:
 │ 4. Audience segmentation (KMeans on TF-IDF + behavioural)        │
 │ 5. Trend detection (weekly aggregation + linear slope)           │
 │ 6. Soft conversion funnel (Awareness → Repurchase)               │
-│ 7. ROI prediction (Ridge on soft-conversion signals)             │
+│ 7. Illustrative ROI index (Ridge on soft-conversion signals)     │
 │ 8. Marketing copy generation (LLM, multi-channel, multi-variant)│
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
        outputs/figures/*.png  +  outputs/reports/pipeline_report.md
+               │
+               ▼
+┌──────────────────────────────────────────────────────────────────┐
+│ 9. Evaluation layer (src/evaluation.py)                          │
+│    silhouette / ARI / NMI · LLM↔TF-IDF overlap · sentiment↔rating│
+│    correlation · K-fold CV R²/MAE · 10-seed stability            │
+└──────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+<a id="evaluation"></a>
+
+## 🧪 Evaluation & Honest Reporting
+
+Because every number in this project is computed from synthetic data, the pipeline ships with its own evaluation layer rather than relying on outside benchmarks. The goal is to make every metric **traceable** to a real run and to expose circular-validation risks in writing.
+
+**Five honest-evaluation primitives** (see `src/evaluation.py` and §8 of `outputs/reports/pipeline_report.md`):
+
+| # | Metric | What it actually measures |
+|---|---|---|
+| 1 | Silhouette score | Cluster separation on the TF-IDF + behavioural feature space |
+| 1 | ARI / NMI vs synthetic `user_segment` | Whether the clusterer rediscovered the synthetic segment structure (**circular check** — high scores do NOT prove the clusterer found real consumer segments) |
+| 2 | LLM↔TF-IDF keyword overlap | TF-IDF n-grams that also appear in the LLM's word-level keywords |
+| 3 | Pearson / Spearman sentiment↔rating | Whether the LLM-derived sentiment agrees with the user-given 1-5 star rating |
+| 4 | K-fold CV R² / MAE on per-review ROI | How the four proxy features predict per-review ROI proxy (R² near 1 is *expected*, not impressive — the proxy is a deterministic function of the features) |
+| 5 | Multi-seed stability | Mean / std / min / max of headline metrics across **10 distinct RANDOM_SEED values** (default) |
+
+**Multi-seed stability script** (independent of the main pipeline so the 5-10 s runtime stays snappy):
+
+```bash
+python scripts/run_stability_eval.py                # 10 seeds × 1500 reviews (~21 s)
+python scripts/run_stability_eval.py --n-seeds 5 --n-reviews 500
+```
+
+Output: `outputs/reports/stability_report.md`.
+
+> **On naming.** The README previously advertised "~+19-20× predicted ROI" — that number was the maximum across segmentation clusters on synthetic data and carried no business meaning. It has been renamed to **Illustrative ROI Index**; its calculation is centralised in `src/config.py::ROIConfig` (ARPU = ¥120, CAC = ¥5, baseline soft-conversion gate = 0.5) so a reviewer can swap in real cost / revenue assumptions. The "Predicted CTR" column has been renamed to **Simulated CTR score** — it is a uniform sample in `[0.04, 0.09)`, never a real CTR prediction. The "Marketing Funnel" chart is labelled as a **soft funnel** (inferred from review text, not real behavioural conversion).
+
+---
+
+<a id="engineering-ci"></a>
+
+## 🔧 Engineering & CI
+
+* **`pyproject.toml`** — package metadata + setuptools discovery; the source tree is installable with `pip install -e .`.
+* **`tests/`** — 27 pytest tests (5 segmentation, 6 funnel, 4 ROI, 3 campaign, 3 sentiment, 13 evaluation). Run with `python -m pytest tests/ -q`.
+* **`.github/workflows/ci.yml`** — matrix CI on Python 3.10 / 3.11: install deps, run pytest, run a smoke `run_pipeline.py` invocation. (Badge above will go green once the workflow is enabled on the upstream repo.)
+* **`requirements.txt`** — pinned major / minor versions (`pandas>=2.0`, `numpy>=1.24`, `scikit-learn>=1.3`, `matplotlib>=3.7`, `streamlit>=1.28`, `openai>=1.0`, `jieba>=0.42`).
+* **Reproducibility** — `RANDOM_SEED = 42` in `src/config.py`; the `MockLLMClient` uses an MD5-derived stable seed (cross-process deterministic).
 
 ---
 
@@ -317,9 +463,9 @@ Compatible endpoints:
 
 - [ ] RAG layer — personas / copy grounded in a brand knowledge base instead of pure prompts
 - [ ] Local 7B model backend (Llama / Qwen) for fully offline operation
-- [ ] One-click deploy to Streamlit Cloud / Hugging Face Spaces
 - [ ] A/B simulation: with-AI vs without-AI copy conversion
 - [ ] Real-data integration via licensed / commercial review APIs
+- [ ] Confidence intervals on per-cluster KPIs via bootstrap
 
 ---
 
@@ -331,4 +477,4 @@ MIT — see [`LICENSE`](LICENSE).
 
 ## Acknowledgments
 
-Built for educational and portfolio purposes. Sample data is programmatically synthesised; no real user information is involved.
+Built for educational and portfolio purposes. Sample data is programmatically synthesised; no real user information is involved. Brand name "花西子 Florasis" is used as a stylistic placeholder only; see the disclaimer block in `src/config.py::IndustryConfig` for the full statement.

@@ -93,7 +93,12 @@ class Segmenter:
             X_cat = csr_matrix((len(df), 0))
 
         if "rating" in df.columns:
-            rating = df["rating"].fillna(df["rating"].median()).to_numpy().reshape(-1, 1)
+            # rating.median() 在全 NaN 列上返回 NaN —— 直接传 NaN 给 KMeans 会崩溃。
+            # 用一个保守的中性默认（3 星，1-5 量表中点）兜底。
+            rating_median = df["rating"].median()
+            if pd.isna(rating_median):
+                rating_median = 3.0
+            rating = df["rating"].fillna(rating_median).to_numpy().reshape(-1, 1)
             X_rating = csr_matrix(rating - rating.mean())
         else:
             X_rating = csr_matrix((len(df), 0))

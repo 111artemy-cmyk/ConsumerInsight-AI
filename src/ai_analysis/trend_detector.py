@@ -112,11 +112,16 @@ class TrendDetector:
 
 
 def _rolling_slope(series: pd.Series, window: int = 3) -> pd.Series:
-    """Return the slope of a simple linear regression in a rolling window."""
+    """Return the slope of a simple linear regression in a rolling window.
+
+    np.polyfit 不接受 NaN，所以窗口内的 NaN 会在传入前先 drop。
+    如果窗口中有效点少于 2 个，该位置的 slope 保持为 0（与初始化一致）。
+    """
     out = pd.Series(np.zeros(len(series)), index=series.index)
     for i in range(len(series)):
         lo = max(0, i - window + 1)
-        seg = series.iloc[lo : i + 1].values
+        seg = series.iloc[lo : i + 1].to_numpy()
+        seg = seg[~np.isnan(seg)]
         if len(seg) < 2:
             continue
         x = np.arange(len(seg))

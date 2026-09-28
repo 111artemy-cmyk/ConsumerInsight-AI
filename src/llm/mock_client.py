@@ -32,6 +32,17 @@ from typing import Any, Dict, List, Optional
 from .base import BaseLLMClient, LLMResponse
 
 
+def _stable_seed(s: str) -> int:
+    """Deterministic 32-bit seed from an arbitrary string.
+
+    Python 3 默认对 str.__hash__() 加进程级随机化（PYTHONHASHSEED），这会让
+    mock LLM 在跨进程运行时输出不可重现 —— 与 README "deterministic at
+    RANDOM_SEED=42" 的承诺不一致。这里固定改用 MD5，保证跨进程稳定。
+    """
+    digest = hashlib.md5(s.encode("utf-8")).hexdigest()
+    return int(digest[:16], 16)
+
+
 class MockLLMClient(BaseLLMClient):
     """A deterministic, offline rule-based LLM stand-in.
 
@@ -119,6 +130,15 @@ class MockLLMClient(BaseLLMClient):
         "抖音": "节奏感强，描述镜头与画面，多用反差词",
         "朋友圈": "私人化、情绪化，强调自我感受",
     }
+
+    # ------------------------------------------------------------------
+    # Simulated CTR range (no real call / click data)
+    # ------------------------------------------------------------------
+    # 模拟点击率取值区间 —— 真实 CTR 应由曝光/点击数据计算得到。
+    # 这里用均匀随机采样 [SIM_CTR_LOW, SIM_CTR_HIGH)，仅作为相对权重，
+    # 用来给渠道预算分配一个可解释的输入。报告里必须显式标注为模拟值。
+    SIM_CTR_LOW: float = 0.04
+    SIM_CTR_HIGH: float = 0.09
 
     # ------------------------------------------------------------------
     # Public API
@@ -244,19 +264,29 @@ class MockLLMClient(BaseLLMClient):
     # ------------------------------------------------------------------
     def _score_text(self, text: str) -> float:
         """Return an overall sentiment polarity in [-1, 1]."""
-        pos = sum(1 for w in self.POS if w in text)
-        neg = sum(1 for w in self.NEG if w in text)
-        if pos == 0 and neg == 0:
+        # 1. 计算每个极性词的命中，并对 negation 的命中做极性翻转：
+        #    "不{w}" / "没{w}" 命中 POS word → 当作 NEG 命中；命中 NEG word → 当作 POS 命中。
+        #    这样 "没差"（中文 "not bad"）会得到正向分数，"不好" 会压低分数。
+        pos_hits = 0
+        neg_hits = 0
+        for w in self.POS:
+            if w in text:
+                if f"不{w}" in text or f"没{w}" in text:
+                    neg_hits += 1
+                else:
+                    pos_hits += 1
+        for w in self.NEG:
+            if w in text:
+                if f"不{w}" in text or f"没{w}" in text:
+                    pos_hits += 1
+                else:
+                    neg_hits += 1
+        if pos_hits == 0 and neg_hits == 0:
             return 0.0
-        score = (pos - neg) / max(pos + neg, 1)
+        score = (pos_hits - neg_hits) / max(pos_hits + neg_hits, 1)
         # Intensity boost
         if any(w in text for w in self.INTENSIFIERS):
             score *= 1.1
-        # Negation flips polarity if it sits immediately before a polarity word
-        if any(f"不{w}" in text or f"没{w}" in text for w in self.POS):
-            score -= 0.3
-        if any(f"不{w}" in text or f"没{w}" in text for w in self.NEG):
-            score += 0.3
         return max(min(score, 1.0), -1.0)
 
     def _dimension_relevance(self, text: str, dim: str) -> float:
@@ -361,7 +391,7 @@ class MockLLMClient(BaseLLMClient):
     def _compose_sample_message(self, persona: Dict[str, Any]) -> str:
         nick = persona["nickname"]
         need = persona["core_need"]
-        rng = random.Random(hash(nick) & 0xFFFFFFFF)
+        rng = random.Random(_stable_seed(nick))
         templates = [
             f"姐妹们，{nick}亲测：{need}！30 秒奶油肌真的不是梦～",
             f"今天被同事追问链接的{nick}：{need}，花西子空气蜜粉 yyds！",
@@ -377,7 +407,7 @@ class MockLLMClient(BaseLLMClient):
         objective: str,
         highlights: str,
     ) -> Dict[str, Any]:
-        rng = random.Random(idx + hash(channel + persona["nickname"]) & 0xFFFFFFFF)
+        rng = random.Random(_stable_seed(f"{idx}|{channel}|{persona['nickname']}"))
         style_tip = self.CHANNEL_STYLE_TIPS.get(channel, "")
         headline_pool = [
             f"花西子空气蜜粉｜{persona['nickname']}的奶油肌速成指南",
@@ -395,13 +425,22 @@ class MockLLMClient(BaseLLMClient):
                 f"{persona['nickname']}用了 {persona['age_range']} 段位的实测真心推荐。"
             ),
         ]
+        # simulated_ctr: 模拟点击率，不是预测点击率。
+        # 仅在 [SIM_CTR_LOW, SIM_CTR_HIGH) 区间内做均匀随机采样，
+        # 用于给渠道预算分配一个可解释的相对权重。
+        # 没有真实曝光/点击数据，**绝对不要**当成真实 CTR 使用。
+        simulated_ctr = round(self.SIM_CTR_LOW + rng.random() * (self.SIM_CTR_HIGH - self.SIM_CTR_LOW), 3)
         variant = {
             "variant_id": f"V{idx + 1:02d}",
             "channel": channel,
             "headline": rng.choice(headline_pool),
             "body": rng.choice(body_pool),
             "hashtags": self.CHANNEL_HASHTAGS.get(channel, ["#花西子"]),
-            "predicted_ctr": round(0.04 + rng.random() * 0.05, 3),
+            # 主字段名 — 显式标注为"模拟"而不是"预测"
+            "simulated_ctr": simulated_ctr,
+            # 保留旧字段名作为别名（兼容旧报告 / 测试），但内部禁用
+            "predicted_ctr": simulated_ctr,
+            "ctr_is_simulated": True,
             "rationale": (
                 f"匹配 {persona['nickname']}（{persona['core_need']}）的核心诉求；"
                 f"渠道 = {channel}，调性 = {style_tip}"

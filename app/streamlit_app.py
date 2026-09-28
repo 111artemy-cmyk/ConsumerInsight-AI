@@ -40,17 +40,41 @@ st.caption(
 
 
 @st.cache_resource(show_spinner="Running full pipeline (first run only)...")
-def _run_pipeline_cached():
+def _run_pipeline_cached(n_reviews: int, backend: str, model: str):
+    """缓存按 (样本数, backend, model) 三元组区分 —— 不同参数会重新跑 pipeline。"""
     return run_full_pipeline(
-        n_reviews=1500,
+        n_reviews=n_reviews,
         use_synthetic=True,
-        llm_backend="auto",
-        llm_model="gpt-4o-mini",
+        llm_backend=backend,
+        llm_model=model,
     )
 
 
+# ---------------------------------------------------------------------------
+# Sidebar — pipeline 参数（让审稿人能验证不同 seed / 配置下的输出）
+# ---------------------------------------------------------------------------
+n_reviews = st.sidebar.slider(
+    "评论样本数 (n_reviews)",
+    min_value=200,
+    max_value=3000,
+    value=1500,
+    step=100,
+    help="合成评论数量。值越大聚类与回归越稳定，~1500 是 README 的默认。",
+)
+backend_label = st.sidebar.selectbox(
+    "LLM 后端",
+    ["auto (推荐 — 检测到 API key 用 OpenAI，否则 mock)", "mock", "openai"],
+    index=0,
+)
+backend = "auto" if backend_label.startswith("auto") else backend_label
+model = st.sidebar.text_input(
+    "模型名 (openai 兼容)",
+    value="gpt-4o-mini",
+    help="如 GLM-4 / DeepSeek / Moonshot 等兼容端点可直接填对应模型名。",
+)
+
 with st.spinner("Loading artefacts…"):
-    arts = _run_pipeline_cached()
+    arts = _run_pipeline_cached(n_reviews, backend, model)
 
 # ---------------------------------------------------------------------------
 # Sidebar — navigation + filters
