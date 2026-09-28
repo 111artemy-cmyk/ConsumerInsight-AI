@@ -30,22 +30,19 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          # CI 用 — pure python 标准库子集；streamlit 是 Streamlit demo 的依赖，
-          # pytest 时不需要拉它，但 run_pipeline 用了，所以保留。
-          python -c "import importlib; assert importlib.import_module('streamlit')"
+          # pytest / black / ruff 来自 requirements-dev.txt
+          python -m pip install -r requirements-dev.txt
 
       - name: Run pytest
         run: |
           python -m pytest tests/ -q --tb=short
-          echo "exit_status=$?"
 
       - name: Smoke test — run_pipeline.py (mock LLM, n=120 reviews)
         run: |
           python scripts/run_pipeline.py --n 120 --backend mock
-          # 校验关键文件确实生成
-          test -f outputs/reports/pipeline_report.md
-          test -f outputs/figures/07_roi_by_segment.png
+          python -c "import os, sys; sys.exit(0 if os.path.exists('outputs/reports/pipeline_report.md') and os.path.exists('outputs/figures/07_roi_by_segment.png') else 1)"
 
       - name: Upload artefacts (figures + reports)
         if: always()
