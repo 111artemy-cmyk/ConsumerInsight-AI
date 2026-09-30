@@ -418,13 +418,13 @@ Because all data is synthetic, the pipeline includes its own evaluation layer (`
 
 | Metric (seed 42) | Value | How to read it |
 |---|---|---|
-| Silhouette score | **+0.1507** | Weak cluster separation. Values this low are commonly read as little substantial cluster structure. |
-| ARI vs synthetic `user_segment` | **+0.0467** | Near zero: the clusters barely align with the generator's segment labels. `user_segment` is itself synthetic, so this check is circular either way. |
-| NMI vs synthetic `user_segment` | **+0.0664** | Same reading as ARI. |
-| Pearson sentiment ↔ rating | **+0.8327** | High, but sentiment and ratings are built with the same lexicon, so it shows internal consistency only. |
-| Spearman sentiment ↔ rating | **+0.7820** | Same caveat. |
-| ROI 5-fold CV R² (per-review proxy) | **+0.9793** | Expected, not impressive: the proxy is a deterministic function of the input features. |
-| ROI CV MAE | **0.3180** | Same caveat. |
+| Silhouette score | **+0.1566** | Weak cluster separation. Values this low are commonly read as little substantial cluster structure. |
+| ARI vs synthetic `user_segment` | **+0.1342** | Near zero: the clusters barely align with the generator's segment labels. `user_segment` is itself synthetic, so this check is circular either way. |
+| NMI vs synthetic `user_segment` | **+0.1680** | Same reading as ARI. |
+| Pearson sentiment ↔ rating | **+0.8325** | High, but sentiment and ratings are built with the same lexicon, so it shows internal consistency only. |
+| Spearman sentiment ↔ rating | **+0.7811** | Same caveat. |
+| ROI 5-fold CV R² (per-review proxy) | **+0.9791** | Expected, not impressive: the proxy is a deterministic function of the input features. |
+| ROI CV MAE | **0.3144** | Same caveat. |
 | LLM ↔ TF-IDF keyword overlap | see `pipeline_report.md` §8 | Fraction of TF-IDF n-grams that also appear in the LLM's keywords. |
 | Multi-seed stability | see [Project at a Glance](#project-at-a-glance) | Mean / std / min / max of headline metrics over 10 seeds. |
 

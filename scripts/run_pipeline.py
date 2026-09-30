@@ -22,6 +22,7 @@ SRC = ROOT / "src"
 sys.path.insert(0, str(ROOT))
 
 from src.pipeline import run_full_pipeline  # noqa: E402
+from src.readme_sync import sync_readme_evaluation_table  # noqa: E402
 
 
 def main() -> int:
@@ -54,6 +55,16 @@ def main() -> int:
     print(f"  figures          : {len(artifacts.figures)}")
     print(f"  report           : {artifacts.report_path}")
     print(f"  processed csv    : {ROOT / 'data' / 'processed' / 'sample_processed.csv'}")
+
+    # Keep README's Evaluation table in sync with the just-produced pipeline
+    # run. Without this, README and pipeline_report drift apart across runs.
+    n_updated = sync_readme_evaluation_table(
+        ROOT / "README.md",
+        clustering_eval=artifacts.clustering_eval,
+        sentiment_rating_eval=artifacts.sentiment_rating_eval,
+        roi_cv_eval=artifacts.roi_cv_eval,
+    )
+    print(f"  README synced    : {n_updated} evaluation cells updated")
     return 0
 
 
