@@ -52,7 +52,7 @@
 
 本项目对自己"不是什么"非常坦诚。读任何数字之前请先读这一节。
 
-* **所有评论文本都是合成的。** 1500 条评论由 `src/data_loader.py::generate_synthetic_reviews()` 从 50 条手写种子模板扩展而来。没有真实用户、没有爬取的真实评论、没有第三方数据。Pipeline 输出描述的是这份**合成**语料的属性，不是别的。
+* **所有评论文本都是合成的。** 1500 条评论由 `src/data_loader.py::generate_synthetic_reviews()` 生成：它把 4 个硬编码的细分人群画像（学生党 / 通勤族 / 成分党 / 精致妈妈）、情感话术与关键词池确定性组合。没有真实用户、没有爬取的真实评论、没有第三方数据。Pipeline 输出描述的是这份**合成**语料的属性，不是别的。
 * **默认 LLM 是基于规则的 Mock。** 复现本 README 中任何数字不需要 API key。Mock 客户端用一个小型词典 + 强化/否定修饰规则实现（见 `src/llm/mock_client.py`），它**不是**真实 LLM 的替代品，是一个确定性的离线基线。任何本仓库中以"the LLM..."开头的句子都指代"当前配置的 LLM"——默认是 Mock。
 * **"ROI" 是 *示意性* ROI 指数。** 它由 `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` 与 `src/config.py::ROIConfig` 里的成本/收入假设共同计算（默认 ARPU=¥120、CAC=¥5、baseline gate=0.5）。它**不是**营销花费回报的测度，是一个教学工件，使 segment 聚合步骤有数字可输出。
 * **"漏斗" 是 *软* 漏斗。** 5 个阶段（Awareness → Interest → Trial → Satisfaction → Repurchase）由 `src/funnel_analyzer.py` 中的关键词规则从评论文本推断。没有曝光、点击、订单。漏斗图与报告中都明确标注 `Soft funnel — inferred from review text + rating, not real behavioural conversion`。
@@ -172,15 +172,15 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 
 | 数据层 | 来源 | 说明 |
 |---|---|---|
-| `data/raw/sample_reviews.csv`（50 条种子） | 手写 | 用 Florasis 风格撰写——见上方免责声明；覆盖 4 类细分群、3 个平台 |
-| `src/data_loader.py::generate_synthetic_reviews()` | 自动合成 | 由 50 条种子 + 模板 + 关键词替换扩展到 1500 条 |
+| `data/raw/sample_reviews.csv`（50 条手写示例） | 手写 | 用 Florasis 风格撰写——见上方免责声明；覆盖 4 类细分群、3 个平台；可用 `--csv` 加载 |
+| `src/data_loader.py::generate_synthetic_reviews()` | 自动合成 | 由 4 个硬编码细分人群画像 + 情感话术 + 关键词池生成 1500 条（不读取上面的 CSV） |
 | Pipeline 输出 | 派生 | 全部基于上述 1500 条合成评论计算 |
 
 **如何换成你自己的真实数据：**
 
 1. 把你的真实评论写入 `data/raw/sample_reviews.csv`
 2. 字段保持一致：`review_id, platform, user_id, product, rating, text, timestamp, user_age_band, user_segment`
-3. 重新跑 `python scripts/run_pipeline.py` —— 所有图表、报告、文案自动基于新数据刷新
+3. 重新跑 `python scripts/run_pipeline.py --csv data/raw/sample_reviews.csv` —— 所有图表、报告、文案自动基于新数据刷新
 
 **为什么用合成数据：**
 
@@ -189,7 +189,7 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 - ✅ 焦点在 **方法论 + pipeline 工程**，而非数据本身
 - ✅ 与真实数据接口完全一致（plug-in 设计）
 
-> **Sanity check（验证独立性）**：删掉 `data/raw/sample_reviews.csv` 后重新跑 pipeline，会得到结构完全相同但文本不同的输出 —— 这证明**代码不依赖于具体那份种子文件**。
+> **Sanity check（验证独立性）**：删掉 `data/raw/sample_reviews.csv` 后重新跑 pipeline，会得到**完全相同**的输出 —— 因为默认 pipeline 是从代码（`RANDOM_SEED=42`）合成评论，并不读取那份 CSV。
 
 ---
 

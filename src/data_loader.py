@@ -46,10 +46,9 @@ from .config import RANDOM_SEED
 # ---------------------------------------------------------------------------
 # Synthetic review corpus
 # ---------------------------------------------------------------------------
-# Each entry is a (segment, polarity, template) triple used by the
-# generator below.  Templates use ``{kw_pos}`` / ``{kw_neg}`` placeholders
-# that the generator fills from the corresponding lexicon so that the
-# resulting text matches the assigned polarity.
+# ``SEGMENTS`` below are hardcoded behavioural segment profiles (name, age
+# bands, platforms, and per-segment lexicons). ``_synthesize_one`` draws a
+# segment, a polarity, and keywords from these pools to build each review.
 # ---------------------------------------------------------------------------
 POSITIVE_HOOKS = [
     "绝了", "太好用了", "回购第三次了", "被同事追问链接", "今天被夸了",

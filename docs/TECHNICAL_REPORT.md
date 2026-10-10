@@ -5,7 +5,7 @@
 **Author**: Xintong Wang
 **Project Type**: Cross-disciplinary Portfolio Project
 **Target Programme**: Master of Science in Data Science — AI Track / Marketing Analytics Track, University of Macau
-**Last Updated**: September 2026
+**Last Updated**: October 2026
 
 ---
 
@@ -33,7 +33,7 @@ This project proposes **ConsumerInsight-AI**, a hybrid framework that:
 4. Builds a **soft marketing funnel** from review signals and trains
    a **Ridge regression** to estimate ROI per audience segment.
 5. Generates **multi-channel campaign copy** for each persona with
-   predicted click-through rates and channel-level budget allocation.
+   simulated click-through rates and channel-level budget allocation.
 
 A **pluggable LLM backend** (Mock / OpenAI-compatible) keeps the entire
 pipeline reproducible without paid APIs, making it suitable as a

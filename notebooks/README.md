@@ -1,4 +1,4 @@
-# 补充 Notebook：ConsumerPulse-Basics
+# 补充 Notebook：ConsumerInsight-Basics
 
 > 这是为**零代码经验**的同学准备的"能逐行讲清"的基础 Notebook。
 > 它只用了 **pandas + matplotlib + 纯 Python**，不依赖 LLM 或任何高级 ML 库。
@@ -46,7 +46,7 @@ python notebooks/01_consumer_basics.py
 ## 这个 Notebook 与主项目的关系
 
 ```
-ConsumerPulse-Basics (基础)         ConsumerInsight-AI (进阶)
+ConsumerInsight-Basics (基础)         ConsumerInsight-AI (进阶)
    pandas / matplotlib              scikit-learn + LLM + Streamlit
         │                                  │
         └──────────── 同一份数据 ──────────┘

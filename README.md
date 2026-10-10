@@ -52,7 +52,7 @@ Both reports are committed as snapshots so every number below can be checked wit
 
 This project is honest about what it is not. Read this section before drawing conclusions from any number above.
 
-* **All review text is synthetic.** The 1500-review corpus is produced by `src/data_loader.py::generate_synthetic_reviews()` from 50 hand-written seed templates. There are no real customers, no scraped reviews, no third-party data. The pipeline's outputs describe properties of this synthetic corpus — nothing more.
+* **All review text is synthetic.** The 1500-review corpus is produced by `src/data_loader.py::generate_synthetic_reviews()`, which deterministically combines four hardcoded segment profiles (学生党 / 通勤族 / 成分党 / 精致妈妈), sentiment hooks, and keyword pools. There are no real customers, no scraped reviews, no third-party data. The pipeline's outputs describe properties of this synthetic corpus — nothing more.
 * **The default LLM is a rule-based Mock.** No API key is required to reproduce any number in this README. The Mock client implements a small lexicon + intensifier/negator rule system (see `src/llm/mock_client.py`) and is *not* a substitute for a real LLM; it is a deterministic offline baseline. Any sentence in this repository that begins "the LLM..." refers to whichever backend is configured — default is the Mock.
 * **The "ROI" number is an *Illustrative* ROI Index.** It is computed from `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` and a configurable cost/revenue assumption in `src/config.py::ROIConfig` (defaults: ARPU = ¥120, CAC = ¥5, baseline gate = 0.5). It is *not* a measure of marketing spend return; it is a teaching artefact so the segment-aggregation step has a numeric output.
 * **The "Funnel" is a *Soft* Funnel.** The five stages (Awareness → Interest → Trial → Satisfaction → Repurchase) are inferred from review text via keyword predicates (`src/funnel_analyzer.py`). There are no impressions, clicks, or orders. The funnel chart and report explicitly carry the label `Soft funnel — inferred from review text + rating, not real behavioural conversion`.
@@ -172,15 +172,15 @@ The same data that powers the Streamlit dashboard above is also exported as stat
 
 | Layer | Source | Notes |
 |---|---|---|
-| `data/raw/sample_reviews.csv` (50 seed reviews) | Hand-written | Authored in a Florasis-style voice — see disclaimer above; spans 4 segments and 3 platforms |
-| `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Expands the 50 seeds into 1500 reviews via templates + keyword substitution |
+| `data/raw/sample_reviews.csv` (50 sample reviews) | Hand-written | Authored in a Florasis-style voice — see disclaimer above; spans 4 segments and 3 platforms; loadable via `--csv` |
+| `src/data_loader.py::generate_synthetic_reviews()` | Auto-generated | Builds 1500 reviews from 4 hardcoded segment profiles + sentiment hooks + keyword pools (does not read the CSV above) |
 | Pipeline outputs | Computed | All charts, reports, and copy are computed from the 1500 reviews above |
 
 **To swap in your own data:**
 
 1. Drop your real reviews into `data/raw/sample_reviews.csv`
 2. Keep the schema: `review_id, platform, user_id, product, rating, text, timestamp, user_age_band, user_segment`
-3. Re-run `python scripts/run_pipeline.py` — every chart, report and copy regenerates automatically
+3. Re-run `python scripts/run_pipeline.py --csv data/raw/sample_reviews.csv` — every chart, report and copy regenerates automatically
 
 **Why synthetic data:**
 
@@ -189,7 +189,7 @@ The same data that powers the Streamlit dashboard above is also exported as stat
 - ✅ Focus stays on **methodology and engineering**, not the data itself
 - ✅ Interface is identical to a real-data pipeline (plug-in design)
 
-> **Sanity check:** delete `data/raw/sample_reviews.csv` and re-run — you get structurally identical but textually different output, showing the code does not depend on the specific seed file.
+> **Sanity check:** delete `data/raw/sample_reviews.csv` and re-run — you get the exact same output, because the default pipeline synthesises reviews from code (`RANDOM_SEED=42`), not from that CSV.
 
 ---
 
