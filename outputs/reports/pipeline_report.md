@@ -3,7 +3,7 @@
 **品牌**：花西子 Florasis  
 **行业**：美妆 (Beauty / Cosmetics)  
 **平台**：小红书, 微博, 天猫  
-**评论数**：120  
+**评论数**：1500  
 **随机种子**：42  
 
 > **重要声明：本报告所有数字均来自程序化合成的 review 数据（synthetic data），不构成任何真实业务结论。ROI 与模拟点击率均为示意性指标。**
@@ -16,12 +16,12 @@
 
 | dimension          |   avg_score |
 |:-------------------|------------:|
-| Product Quality    |   0.254917  |
-| Value for Money    |   0.1       |
-| Packaging Design   |   0.159442  |
-| Skin Feel          |   0.171333  |
-| Long Wear          |   0.126083  |
-| Service Experience |   0.0383333 |
+| Product Quality    |   0.211662  |
+| Value for Money    |   0.103153  |
+| Packaging Design   |   0.168543  |
+| Skin Feel          |   0.118231  |
+| Long Wear          |   0.0807667 |
+| Service Experience |   0.0307913 |
 
 ### 情感按细分群分布
 
@@ -37,10 +37,10 @@
 
 |   segment_id |   volume |   avg_rating |    天猫 |   小红书 |    微博 |    抖音 |   朋友圈 |   18-23 |   24-30 |   31-40 |   40+ |
 |-------------:|---------:|-------------:|------:|------:|------:|------:|------:|--------:|--------:|--------:|------:|
-|            0 |       25 |      4.76    | 0     | 1     | 0     | 0     | 0     |   0.32  |   0.48  |   0.2   | 0     |
-|            1 |       25 |      4.72    | 0     | 0     | 0.96  | 0     | 0.04  |   0     |   0.32  |   0.52  | 0.16  |
-|            2 |       43 |      2.53488 | 0.302 | 0.349 | 0.186 | 0.047 | 0.116 |   0.209 |   0.279 |   0.419 | 0.093 |
-|            3 |       27 |      4.62963 | 0.778 | 0     | 0     | 0.222 | 0     |   0.444 |   0.148 |   0.259 | 0.148 |
+|            0 |      618 |      4.78641 | 0.278 | 0.249 | 0.388 | 0     | 0.084 |   0     |   0.362 |   0.453 | 0.184 |
+|            1 |      456 |      3.1557  | 0.213 | 0.463 | 0.239 | 0.044 | 0.042 |   0.193 |   0.342 |   0.362 | 0.103 |
+|            2 |      248 |      4.68548 | 0.347 | 0.48  | 0     | 0.173 | 0     |   1     |   0     |   0     | 0     |
+|            3 |      178 |      1.26404 | 0.242 | 0.449 | 0.247 | 0.045 | 0.017 |   0.23  |   0.337 |   0.343 | 0.09  |
 
 ## 3. 核心话题
 
@@ -70,7 +70,7 @@
 
 ![漏斗](../figures/06_funnel.png)
 
-> 漏斗中转化率最低的阶段是 05_Repurchase (36.4%). 建议优先在该阶段加强内容/促销/客服干预。
+> 漏斗中转化率最低的阶段是 05_Repurchase (40.0%). 建议优先在该阶段加强内容/促销/客服干预。
 
 > Soft funnel inferred from review text, NOT real behavioural conversion data (no impressions / clicks / orders). Treat as directional only.
 
@@ -80,10 +80,10 @@
 
 |   cluster_id |   volume |   avg_sentiment |   avg_rating |   predicted_soft_conversion |   expected_cost |   expected_revenue |   expected_roi |   illustrative_roi_index |
 |-------------:|---------:|----------------:|-------------:|----------------------------:|----------------:|-------------------:|---------------:|-------------------------:|
-|            0 |       25 |        0.942    |      4.76    |                    0.86534  |             125 |            1096.02 |          7.768 |                    7.768 |
-|            1 |       25 |        0.984    |      4.72    |                    0.871161 |             125 |            1113.48 |          7.908 |                    7.908 |
-|            2 |       43 |       -0.120186 |      2.53488 |                    0.531473 |             215 |             162.4  |         -0.245 |                   -0.245 |
-|            3 |       27 |        1        |      4.62963 |                    0.865837 |             135 |            1185.31 |          7.78  |                    7.78  |
+|            0 |      618 |        0.967231 |      4.78641 |                    0.867522 |            3090 |           27255.4  |          7.821 |                    7.821 |
+|            1 |      456 |        0.25309  |      3.1557  |                    0.636451 |            2280 |            7466.59 |          2.275 |                    2.275 |
+|            2 |      248 |        0.995968 |      4.68548 |                    0.870356 |            1240 |           11021.8  |          7.889 |                    7.889 |
+|            3 |      178 |       -0.965292 |      1.26404 |                    0.337572 |             890 |               0    |         -1     |                   -1     |
 
 > Illustrative ROI index — synthetic data only. Computed from sentiment-driven soft_conversion signals with ARPU=¥120 and CAC=¥5 (see ROIConfig in src/config.py). K-fold CV R²/MAE on per-review ROI proxy report how well the four features predict per-review ROI; this is NOT a real causal estimate of marketing spend return.
 
@@ -114,10 +114,10 @@
 
 | 指标 | 值 |
 |---|---|
-| Silhouette score (range [-1, +1]) | +0.1775 |
-| Adjusted Rand Index vs synthetic user_segment | +0.0674 |
-| Normalized Mutual Information vs synthetic user_segment | +0.1626 |
-| N samples / N predicted clusters / N true labels | 120 / 4 / 4 |
+| Silhouette score (range [-1, +1]) | +0.1537 |
+| Adjusted Rand Index vs synthetic user_segment | +0.1767 |
+| Normalized Mutual Information vs synthetic user_segment | +0.2662 |
+| N samples / N predicted clusters / N true labels | 1500 / 4 / 4 |
 
 > Silhouette measures cluster separation on the feature space (higher = better separated, range [-1, +1]). ARI / NMI compare predicted clusters with the synthetic 'user_segment' label used during data generation; this is a circular check — high scores mean 'the clusterer rediscovered the synthetic segment structure', NOT 'the clusterer found real consumer segments in production data'.
 
@@ -125,9 +125,9 @@
 
 | 指标 | 值 |
 |---|---|
-| TF-IDF 关键词中被 LLM 提及的比例 (overlap_ratio) | 0.267 |
-| Jaccard | 0.100 |
-| LLM 关键词总数 / TF-IDF 关键词总数 / 重合数 | 29 / 15 / 4 |
+| TF-IDF 关键词中被 LLM 提及的比例 (overlap_ratio) | 0.200 |
+| Jaccard | 0.073 |
+| LLM 关键词总数 / TF-IDF 关键词总数 / 重合数 | 29 / 15 / 3 |
 
 > Overlap is computed by **set intersection** between the LLM's word-level keywords (e.g. ['包装', '设计', '好看']) and the TF-IDF word-level vocabulary (jieba-segmented) of the same corpus. On Chinese, even a perfect semantic topic will often show only partial overlap here because the LLM and jieba segment the same text slightly differently. Both metrics are heuristic — even perfect agreement does NOT prove the LLM extracted the right topics. It only shows the LLM did not contradict the most frequent surface words.
 
@@ -135,9 +135,9 @@
 
 | 指标 | 值 |
 |---|---|
-| Pearson r (p-value) | +0.7882 (p=1.22e-26) |
-| Spearman ρ (p-value) | +0.7328 (p=1.85e-21) |
-| N | 120 |
+| Pearson r (p-value) | +0.8269 (p=0.00e+00) |
+| Spearman ρ (p-value) | +0.7689 (p=2.71e-293) |
+| N | 1500 |
 
 > Pearson + Spearman between LLM-derived overall sentiment (range -1 to +1) and the user-given 1-5 star rating. On synthetic data both are derived from the same polarity lexicon, so the correlation is high by construction. Treat this as a sanity check (does the LLM agree with rating?), NOT as evidence of sentiment accuracy on real reviews.
 
@@ -145,18 +145,18 @@
 
 | 指标 | 值 |
 |---|---|
-| K-fold CV R² (per-review ROI proxy) | +0.9790 |
-| K-fold CV MAE | 0.2445 |
-| Folds / samples | 5 / 120 |
+| K-fold CV R² (per-review ROI proxy) | +0.9807 |
+| K-fold CV MAE | 0.3058 |
+| Folds / samples | 5 / 1500 |
 
 Coefficients (mean across folds):
 
 | feature           |   cv_coefficient | cv_r2   | cv_mae   | cv_folds   |
 |:------------------|-----------------:|:--------|:---------|:-----------|
-| overall           |           3.2574 | 0.9790  | 0.2445   | 5          |
-| high_rating       |           2.5086 | —       | —        | —          |
-| long_text         |           1.1221 | —       | —        | —          |
-| repurchase_intent |           0.6028 | —       | —        | —          |
+| overall           |           3.2279 | 0.9807  | 0.3058   | 5          |
+| high_rating       |           2.8077 | —       | —        | —          |
+| long_text         |           0.8848 | —       | —        | —          |
+| repurchase_intent |           0.6743 | —       | —        | —          |
 
 > Ridge K-fold CV on per-review ROI proxy. R² near 1 means the four proxy features can predict per-review ROI almost perfectly — expected because the proxy itself is a deterministic function of those features. The CV is still reported because it (a) confirms no numerical pathology in the proxy definition and (b) exposes the coefficient signs/magnitudes for the reviewer to sanity-check.
 
