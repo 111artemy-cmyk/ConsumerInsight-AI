@@ -129,7 +129,7 @@ def run_full_pipeline(
     SENTIMENT_COLS = list(sentiment.summary["dimension"])
 
     # ----- Step 4: topics --------------------------------------------
-    topics = TopicModeler(llm=llm, n_topics=5, brand_name=industry.brand_name).run(df)
+    topics = TopicModeler(llm=llm, n_topics=6, brand_name=industry.brand_name).run(df)
 
     # ----- Step 5: personas ------------------------------------------
     personas = PersonaGenerator(llm=llm, n_clusters=4, random_state=seed_used).run(df)

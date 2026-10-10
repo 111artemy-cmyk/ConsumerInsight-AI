@@ -31,13 +31,13 @@ Both reports are committed as snapshots so every number below can be checked wit
 |---|---|---|---|
 | Reviews processed | **1500** | 1500 (fixed) | `pipeline_report.md` |
 | Audience segments (KMeans, k fixed) | **4** | 4 (fixed) | `pipeline_report.md` §2 |
-| Largest segment share (%) | **41.6** (segment 2) | **35.78 ± 3.56** (range 32.87–42.67) | `pipeline_report.md` §2 / `stability_report.md` |
+| Largest segment share (%) | **41.2** (segment 0) | **36.45 ± 4.36** (range 32.27–43.40) | `pipeline_report.md` §2 / `stability_report.md` |
 | Consumer personas | **4** | 4 (fixed) | `pipeline_report.md` §4 |
-| Core discussion topics | **5** | 5 (fixed) | `pipeline_report.md` §3 |
+| Core discussion topics | **6** | 6 (fixed) | `pipeline_report.md` §3 |
 | Marketing variants | **12** (3 channels × 4 personas) | 12 (fixed) | `pipeline_report.md` §7 |
-| **Illustrative ROI index**, peak value | **+7.901** | **7.867 ± 0.046** (range 7.799–7.959) | `pipeline_report.md` §6 / `stability_report.md` |
-| **Illustrative ROI index**, peak segment id | **0** | **0** in 5/10 seeds; 3 in 2/10; 1 in 2/10; 2 in 1/10 | `stability_report.md` |
-| **Soft funnel**, worst retention | **0.409** | **0.401 ± 0.018** (range 0.375–0.425) | `pipeline_report.md` §5 / `stability_report.md` |
+| **Illustrative ROI index**, peak value | **+7.889** | **7.858 ± 0.031** (range 7.797–7.891) | `pipeline_report.md` §6 / `stability_report.md` |
+| **Illustrative ROI index**, peak segment id | **2** | **1** in 4/10 seeds; 2 in 3/10; 0 in 2/10; 3 in 1/10 | `stability_report.md` |
+| **Soft funnel**, worst retention | **0.400** | **0.406 ± 0.023** (range 0.383–0.453) | `pipeline_report.md` §5 / `stability_report.md` |
 | **Soft funnel**, worst stage | **`05_Repurchase`** | **`05_Repurchase`** in 10/10 seeds | `pipeline_report.md` §5 / `stability_report.md` |
 | **Simulated CTR score** range | uniform `[0.04, 0.09)` | same (deterministic per seed) | `pipeline_report.md` §7 |
 | Visualisations | **7 charts** in `outputs/figures/` | n/a | `outputs/figures/*.png` |
@@ -56,7 +56,7 @@ This project is honest about what it is not. Read this section before drawing co
 * **The default LLM is a rule-based Mock.** No API key is required to reproduce any number in this README. The Mock client implements a small lexicon + intensifier/negator rule system (see `src/llm/mock_client.py`) and is *not* a substitute for a real LLM; it is a deterministic offline baseline. Any sentence in this repository that begins "the LLM..." refers to whichever backend is configured — default is the Mock.
 * **The "ROI" number is an *Illustrative* ROI Index.** It is computed from `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` and a configurable cost/revenue assumption in `src/config.py::ROIConfig` (defaults: ARPU = ¥120, CAC = ¥5, baseline gate = 0.5). It is *not* a measure of marketing spend return; it is a teaching artefact so the segment-aggregation step has a numeric output.
 * **The "Funnel" is a *Soft* Funnel.** The five stages (Awareness → Interest → Trial → Satisfaction → Repurchase) are inferred from review text via keyword predicates (`src/funnel_analyzer.py`). There are no impressions, clicks, or orders. The funnel chart and report explicitly carry the label `Soft funnel — inferred from review text + rating, not real behavioural conversion`.
-* **Clustering may reflect the synthetic generation template, not real segments.** KMeans is run on `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating` with **k = 4 fixed in advance**. In the seed-42 run the silhouette score is **0.15** and ARI / NMI against the generator's `user_segment` are **0.05 / 0.07**. The four clusters are only weakly separated and do **not** reproduce the four synthetic segments; the "personas" attached to them are descriptions of these weak clusters, not validated consumer types. Even a high ARI / NMI would have been a circular check, because `user_segment` itself is synthetic.
+* **Clustering may reflect the synthetic generation template, not real segments.** KMeans is run on `TF-IDF(2,4 char-wb) + OneHot(platform, age_band) + rating` with **k = 4 fixed in advance**. In the seed-42 run the silhouette score is **≈0.15** and ARI / NMI against the generator's `user_segment` are **≈0.18 / ≈0.27**. The four clusters are only weakly separated and do **not** reproduce the four synthetic segments; the "personas" attached to them are descriptions of these weak clusters, not validated consumer types. Even a high ARI / NMI would have been a circular check, because `user_segment` itself is synthetic.
 * **The "Simulated CTR" is a uniform random sample.** Channel-level `simulated_ctr` is drawn from `Uniform[0.04, 0.09)` inside `MockLLMClient._compose_campaign`. It exists so that the channel-budget-allocation step has a relative-weight input. It is *not* a real CTR prediction.
 * **No public demo is deployed.** The Streamlit dashboard runs locally. To publish your own, follow the steps in [Deploy](#deploy). The README does **not** claim a hosted demo is currently available.
 
@@ -144,7 +144,7 @@ The same data that powers the Streamlit dashboard above is also exported as stat
 
 ![ROI](outputs/figures/07_roi_by_segment.png)
 
-> All seven charts are in [`outputs/figures/`](outputs/figures/). Each chart carries a data-source line (`Source: synthetic reviews (n=…)`) and a bottom insight box (English labels, no emoji). The ROI chart is titled "Illustrative ROI Index (Synthetic — Illustrative Only)" and the funnel chart is titled "Soft Funnel (Not Real Behavioural Conversion)". The Streamlit screenshots and the static PNGs cover overlapping content by design — the Streamlit ones are reviewed for reviewers who want to *interact*, the PNGs are reviewed for README-only readers.
+> All seven charts are in [`outputs/figures/`](outputs/figures/). Each chart carries a data-source line (`Source: synthetic reviews (n=…)`) and a bottom insight box (English labels, no emoji). The ROI chart is titled "Illustrative ROI Index (Synthetic — Illustrative Only)" and the funnel chart is titled "Soft Funnel (Not Real Behavioural Conversion)". The Streamlit screenshots and the static PNGs cover overlapping content by design — the Streamlit ones are provided for reviewers who want to *interact*, while the PNGs serve README-only readers.
 
 ---
 
@@ -214,7 +214,7 @@ Key properties:
 ### What it does (8 steps + 1 evaluation layer)
 
 1. **Multi-aspect sentiment scoring** — 6 product-experience dimensions (`Product Quality`, `Value for Money`, `Packaging Design`, `Skin Feel`, `Long Wear`, `Service Experience`; see [Sentiment dimensions vs. topics](#sentiment-dimensions-vs-topics))
-2. **Topic extraction** — 5 themes, LLM + TF-IDF cross-check (`包装设计`, `上脸肤感与持久度`, `性价比`, `色号与妆效`, `敏感肌与刺激`, `物流与服务`; see [Sentiment dimensions vs. topics](#sentiment-dimensions-vs-topics))
+2. **Topic extraction** — 6 themes, LLM + TF-IDF cross-check (`包装设计`, `上脸肤感与持久度`, `性价比`, `色号与妆效`, `敏感肌与刺激`, `物流与服务`; see [Sentiment dimensions vs. topics](#sentiment-dimensions-vs-topics))
 3. **Persona generation** — 4 personas, KMeans + LLM
 4. **Audience segmentation** — KMeans on TF-IDF + behavioural features
 5. **Trend detection** — weekly aggregation + linear slope
@@ -229,7 +229,7 @@ Key properties:
 
 The pipeline emits two categorically different artefacts that are easy to confuse:
 
-| Sentiment dimensions (6, in `src/config.py::SENTIMENT_DIMENSIONS`) | Core topics (5, returned by `TopicModeler`) |
+| Sentiment dimensions (6, in `src/config.py::SENTIMENT_DIMENSIONS`) | Core topics (6, returned by `TopicModeler`) |
 |---|---|
 | `Product Quality` — 产品质量（粉质、服帖度、持妆力） | `包装设计` — 视觉设计与国风文化表达 |
 | `Value for Money` — 性价比（价格、促销、赠品） | `上脸肤感与持久度` — 服帖度与全天持妆 |
@@ -278,7 +278,7 @@ ConsumerInsight-AI/
 │   ├── pipeline.py               # Pipeline orchestrator
 │   ├── data_loader.py            # Data loading + synthetic generation
 │   └── config.py                 # Global configuration (incl. ROIConfig)
-└── tests/                        # Unit tests (pytest, 27 tests)
+└── tests/                        # Unit tests (pytest, 46 tests)
 ```
 
 ---
@@ -380,7 +380,7 @@ Compatible endpoints:
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 2. Topic extraction (LLM + TF-IDF cross-check) — 5 themes        │
+│ 2. Topic extraction (LLM + TF-IDF cross-check) — 6 themes        │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
@@ -418,14 +418,14 @@ Because all data is synthetic, the pipeline includes its own evaluation layer (`
 
 | Metric (seed 42) | Value | How to read it |
 |---|---|---|
-| Silhouette score | **+0.1566** | Weak cluster separation. Values this low are commonly read as little substantial cluster structure. |
-| ARI vs synthetic `user_segment` | **+0.1342** | Near zero: the clusters barely align with the generator's segment labels. `user_segment` is itself synthetic, so this check is circular either way. |
-| NMI vs synthetic `user_segment` | **+0.1680** | Same reading as ARI. |
-| Pearson sentiment ↔ rating | **+0.8325** | High, but sentiment and ratings are built with the same lexicon, so it shows internal consistency only. |
-| Spearman sentiment ↔ rating | **+0.7811** | Same caveat. |
-| ROI 5-fold CV R² (per-review proxy) | **+0.9791** | Expected, not impressive: the proxy is a deterministic function of the input features. |
-| ROI CV MAE | **0.3144** | Same caveat. |
-| LLM ↔ TF-IDF keyword overlap | see `pipeline_report.md` §8 | Fraction of TF-IDF n-grams that also appear in the LLM's keywords. |
+| Silhouette score | **+0.1537** | Weak cluster separation. Values this low are commonly read as little substantial cluster structure. |
+| ARI vs synthetic `user_segment` | **+0.1767** | Weak alignment: the clusters only partially recover the generator's segment labels. `user_segment` is itself synthetic, so this check is circular either way. |
+| NMI vs synthetic `user_segment` | **+0.2662** | Same reading as ARI. |
+| Pearson sentiment ↔ rating | **+0.8269** | High, but sentiment and ratings are built with the same lexicon, so it shows internal consistency only. |
+| Spearman sentiment ↔ rating | **+0.7689** | Same caveat. |
+| ROI 5-fold CV R² (per-review proxy) | **+0.9807** | Expected, not impressive: the proxy is a deterministic function of the input features. |
+| ROI CV MAE | **0.3058** | Same caveat. |
+| LLM ↔ TF-IDF keyword overlap | see `pipeline_report.md` §8 | Fraction of TF-IDF keywords (jieba-segmented) that also appear in the LLM's keywords. |
 | Multi-seed stability | see [Project at a Glance](#project-at-a-glance) | Mean / std / min / max of headline metrics over 10 seeds. |
 
 **What these numbers say.** The sentiment and ROI components are internally consistent *by construction*, while the segmentation is weak. Fixing k = 4 and reusing the generator's segment labels as a reference do not by themselves validate the four "audience segments" (see [Limitations](#limitations)).
@@ -448,9 +448,9 @@ Output: `outputs/reports/stability_report.md`.
 ## 🔧 Engineering & CI
 
 * **`pyproject.toml`** — package metadata + setuptools discovery; the source tree is installable with `pip install -e .`.
-* **`tests/`** — 27 pytest tests (5 segmentation, 6 funnel, 4 ROI, 3 campaign, 3 sentiment, 13 evaluation). Run with `python -m pytest tests/ -q`.
+* **`tests/`** — 46 pytest tests (1 segmentation, 4 funnel, 3 ROI, 3 campaign, 2 sentiment, 22 evaluation, 1 pipeline, 10 readme-sync). Run with `python -m pytest tests/ -q`.
 * **`.github/workflows/ci.yml`** — matrix CI on Python 3.10 / 3.11: install deps, run pytest, run a smoke `run_pipeline.py` invocation. The CI badge at the top of this README shows the latest result.
-* **`requirements.txt`** — pinned major / minor versions (`pandas>=2.0`, `numpy>=1.24`, `scikit-learn>=1.3`, `matplotlib>=3.7`, `streamlit>=1.28`, `openai>=1.0`, `jieba>=0.42`).
+* **`requirements.txt`** — pinned major / minor versions (`pandas>=2.0`, `numpy>=1.24`, `scikit-learn>=1.3`, `matplotlib>=3.7`, `streamlit>=1.28`, `openai>=1.0`, `jieba>=0.42`, `tabulate>=0.9`).
 * **Reproducibility** — `RANDOM_SEED = 42` in `src/config.py`; the `MockLLMClient` uses an MD5-derived stable seed (cross-process deterministic).
 
 ---

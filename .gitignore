@@ -27,9 +27,9 @@ Thumbs.db
 logs/
 
 # ----- Pipeline outputs -----
-# Figures are committed (they are the visual deliverable, ~3 MB total)
-# Reports + processed data are regenerable and kept out of the repo
-outputs/reports/
+# Figures AND reports are committed as reproducible snapshots (the README's
+# "Project at a Glance" and "Evaluation" tables cite them as sources).
+# Only processed data (intermediate, regenerable) is kept out of the repo.
 data/processed/
 
 # ----- Environment files (never commit secrets) -----

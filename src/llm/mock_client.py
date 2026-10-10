@@ -335,7 +335,7 @@ class MockLLMClient(BaseLLMClient):
                 ],
                 "preferred_channels": ["小红书", "抖音"],
                 "recommended_campaign_angle": "30 秒奶油肌挑战 + 国风限定礼盒",
-                "why_matters": "规模最大 (26.5%) + ROI 峰值之一 (+19.41)，是 GMV 基本盘；用 国风礼盒 切入可同时拉动客单价与社交分享",
+                "why_matters": "规模较大的通勤主力人群，客单价提升与社交分享潜力兼备，适合作为重点沟通对象",
             },
             {
                 "persona_id": f"P{cid:02d}",
@@ -350,7 +350,7 @@ class MockLLMClient(BaseLLMClient):
                 ],
                 "preferred_channels": ["小红书", "微博"],
                 "recommended_campaign_angle": "成分透明化对比测评 + 敏感肌打卡挑战",
-                "why_matters": "中等规模 (21.2%)，平均评分高 (★4.69)，社交传播力强，是品牌口碑放大器；用 UGC 裂变可降低获客成本",
+                "why_matters": "对成分与安全性要求高的口碑型人群，社交传播力强，适合用测评内容撬动 UGC 传播",
             },
             {
                 "persona_id": f"P{cid:02d}",
@@ -365,7 +365,7 @@ class MockLLMClient(BaseLLMClient):
                 ],
                 "preferred_channels": ["小红书", "抖音", "朋友圈"],
                 "recommended_campaign_angle": "百元平价奶油肌 + 学生党开箱视频",
-                "why_matters": "小众但 ROI 最高 (+19.55)，用户复购意愿强；学生群体是未来 5-10 年消费主力，提前卡位 LTV 价值大",
+                "why_matters": "预算敏感但复购意愿强的年轻人群，是品牌未来的增量市场与 LTV 基本盘",
             },
             {
                 "persona_id": f"P{cid:02d}",
@@ -380,7 +380,7 @@ class MockLLMClient(BaseLLMClient):
                 ],
                 "preferred_channels": ["微博", "朋友圈"],
                 "recommended_campaign_angle": "一妆多用场景剧 + 妈妈群口碑裂变",
-                "why_matters": "人数最少 (11.0%) 但满意度最低 (★1.23)，是流失重灾区；优先修复物流 / 客服可挽回这批高客单用户",
+                "why_matters": "对物流与售后体验敏感的高客单人群，服务体验是挽回与转化的关键抓手",
             },
         ]
         base = persona_templates[(cid - 1) % len(persona_templates)]
@@ -438,8 +438,6 @@ class MockLLMClient(BaseLLMClient):
             "hashtags": self.CHANNEL_HASHTAGS.get(channel, ["#花西子"]),
             # 主字段名 — 显式标注为"模拟"而不是"预测"
             "simulated_ctr": simulated_ctr,
-            # 保留旧字段名作为别名（兼容旧报告 / 测试），但内部禁用
-            "predicted_ctr": simulated_ctr,
             "ctr_is_simulated": True,
             "rationale": (
                 f"匹配 {persona['nickname']}（{persona['core_need']}）的核心诉求；"

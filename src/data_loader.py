@@ -173,7 +173,11 @@ def _synthesize_one(
         kw_pool = seg.neg_lex + NEGATIVE_KW_POOL + seg.neg_lex_extra
 
     n_kw = rng.randint(2, 4)
-    keywords = rng.sample(list(set(kw_pool)), k=min(n_kw, len(set(kw_pool))))
+    # ``sorted(set(...))`` keeps the sample order stable regardless of
+    # PYTHONHASHSEED, so the synthetic corpus is reproducible across
+    # processes (not just within a single process).
+    unique_kw = sorted(set(kw_pool))
+    keywords = rng.sample(unique_kw, k=min(n_kw, len(unique_kw)))
     hook = rng.choice(hooks)
     body = f"{hook}，{ '、'.join(keywords) }。"
 

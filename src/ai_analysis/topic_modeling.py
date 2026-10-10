@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
+import jieba
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -39,7 +40,7 @@ class TopicModeler:
     def __init__(
         self,
         llm: BaseLLMClient,
-        n_topics: int = 5,
+        n_topics: int = 6,
         brand_name: str = "花西子 Florasis",
     ):
         self.llm = llm
@@ -80,10 +81,13 @@ class TopicModeler:
     # Internals
     # ------------------------------------------------------------------
     def _tfidf_keywords(self, corpus: List[str], top_k: int = 15) -> pd.DataFrame:
-        """Return top-K TF-IDF keywords for the whole corpus."""
-        # 中文停用词只在 word analyzer 下生效 —— char_wb + ngram 场景下 sklearn
-        # 会静默忽略 stop_words 并打 UserWarning。这里改用预处理阶段清洗语料，
-        # 既真正生效，又不依赖 jieba 这类分词器。
+        """Return top-K TF-IDF keywords for the whole corpus.
+
+        Uses ``jieba`` word segmentation (rather than character n-grams) so
+        the TF-IDF vocabulary is word-level and can be meaningfully compared
+        against the word-level keywords returned by the LLM topic extractor
+        in ``eval_topic_llm_vs_tfidf``.
+        """
         stop_chars = set("的了和是在就都也很有我你他她它这那一个一些啊吗呢吧嗯哈哦呀是也就")
         cleaned_corpus = [
             "".join(ch for ch in doc if ch not in stop_chars) for doc in corpus
@@ -91,13 +95,17 @@ class TopicModeler:
         # 全部是停用字会导致空字符串，TF-IDF 会抛 ValueError；退化到原语料。
         if all(not c.strip() for c in cleaned_corpus):
             cleaned_corpus = corpus
-        # ngram_range=(2, 3) 输出 char-2-grams + char-3-grams，
-        # 让 word-level LLM 关键词（多数 2-3 字）能与之做精确匹配，
-        # 用于在 eval_topic_llm_vs_tfidf 中计算 overlap_ratio / Jaccard。
-        vec = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 3), max_features=2000)
-        vec.fit(cleaned_corpus)
-        # 用同一份清洗语料 transform，保证 vocab 与统计对齐。
-        scores = vec.transform(cleaned_corpus).sum(axis=0).A1
+
+        def _tokenize(doc: str) -> List[str]:
+            return [w for w in jieba.cut(doc) if w.strip() and len(w) > 1]
+
+        # 先用 jieba 预分词再按空白拼接，tokenizer=str.split 直接按词元统计，
+        # 让 word-level 的 TF-IDF 关键词能与 LLM 的 word-level 关键词对齐。
+        tokenized = [" ".join(_tokenize(doc)) for doc in cleaned_corpus]
+        vec = TfidfVectorizer(tokenizer=str.split, token_pattern=None, max_features=2000)
+        vec.fit(tokenized)
+        # 用同一份语料 transform，保证 vocab 与统计对齐。
+        scores = vec.transform(tokenized).sum(axis=0).A1
         vocab = vec.get_feature_names_out()
         order = scores.argsort()[::-1][:top_k]
         return pd.DataFrame(

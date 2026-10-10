@@ -48,10 +48,13 @@ from typing import Optional
 
 _METRIC_REGEXES: list[tuple[str, str]] = [
     (r"Silhouette score\b", "silhouette"),
-    (r"ARI vs synthetic\b", "ari"),
-    (r"NMI vs synthetic\b", "nmi"),
-    (r"Pearson sentiment\b", "pearson"),
-    (r"Spearman sentiment\b", "spearman"),
+    # ``ARI vs`` / ``NMI vs`` match both the English README
+    # ("ARI vs synthetic `user_segment`") and the Chinese README
+    # ("ARI vs 合成 `user_segment`").
+    (r"ARI vs", "ari"),
+    (r"NMI vs", "nmi"),
+    (r"Pearson\b", "pearson"),
+    (r"Spearman\b", "spearman"),
     (r"ROI 5-fold CV R", "roi_r2"),
     (r"ROI CV MAE\b", "roi_mae"),
 ]

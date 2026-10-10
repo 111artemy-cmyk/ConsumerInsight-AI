@@ -288,3 +288,41 @@ def test_sync_normalizes_unbolded_mae(tmp_path: Path):
     text = readme.read_text(encoding="utf-8")
     assert "**0.2500**" in text
     assert " 0.25" not in text  # no stray plain "0.25"
+
+
+def test_sync_handles_chinese_metric_names(tmp_path: Path):
+    """The loosened metric regexes must also sync the Chinese README.zh.md."""
+    zh = (
+        "# 中文 README\n\n"
+        "| 指标（seed=42） | 数值 | 如何读它 |\n"
+        "|---|---|---|\n"
+        "| Silhouette score | **+0.1507** | 聚类分离度很弱。 |\n"
+        "| ARI vs 合成 `user_segment` | **+0.0467** | 接近零。 |\n"
+        "| NMI vs 合成 `user_segment` | **+0.0664** | 同 ARI。 |\n"
+        "| Pearson 情感 ↔ 评分 | **+0.8327** | 内部自洽。 |\n"
+        "| Spearman 情感 ↔ 评分 | **+0.7820** | 同上。 |\n"
+        "| ROI 5-fold CV R²（per-review proxy） | **+0.9793** | 预期之内。 |\n"
+        "| ROI CV MAE | **0.3180** | 同上。 |\n"
+    )
+    readme = tmp_path / "README.zh.md"
+    readme.write_text(zh, encoding="utf-8")
+
+    n = sync_readme_evaluation_table(
+        readme,
+        clustering_eval=_make_clustering(sil=0.18, ari=0.06, nmi=0.09),
+        sentiment_rating_eval=_make_sentiment(pearson=0.85, spearman=0.80),
+        roi_cv_eval=_make_roi(r2=0.97, mae=0.30),
+    )
+
+    assert n == 7
+    text = readme.read_text(encoding="utf-8")
+    assert "**+0.1800**" in text  # silhouette
+    assert "**+0.0600**" in text  # ARI
+    assert "**+0.0900**" in text  # NMI
+    assert "**+0.8500**" in text  # Pearson
+    assert "**+0.8000**" in text  # Spearman
+    assert "**+0.9700**" in text  # ROI R²
+    assert "**0.3000**" in text  # ROI MAE
+    # Chinese metric names preserved
+    assert "ARI vs 合成" in text
+    assert "Pearson 情感" in text

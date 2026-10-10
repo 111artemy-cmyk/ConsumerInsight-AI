@@ -91,8 +91,8 @@ clustering algorithm) without touching the rest of the system.
 ### 4.2 Multi-Aspect Sentiment Analysis
 
 * Six pre-defined aspects:
-  `product_quality`, `value_for_money`, `packaging_design`,
-  `skin_feel`, `long_wear`, `service_experience`.
+  `Product Quality`, `Value for Money`, `Packaging Design`,
+  `Skin Feel`, `Long Wear`, `Service Experience`.
 * The LLM is prompted with the review text and the aspect list, and is
   asked to return JSON of the form
   `{"dimensions": {aspect: {"score": float in [-1, 1], "rationale": str}}, "overall": float}`.
@@ -104,10 +104,10 @@ clustering algorithm) without touching the rest of the system.
 ### 4.3 Topic Extraction
 
 * Prompt the LLM with a sample of up to 120 deduplicated reviews and
-  ask for 5 topics, each with:
+  ask for 6 topics, each with:
   `topic_id`, `topic_label_cn`, `description`,
   `representative_keywords` (5), `share_estimate` (in [0,1]).
-* Independently run TF-IDF (char n-grams 2–4) to obtain the
+* Independently run TF-IDF (jieba word segmentation) to obtain the
   corpus-level top keywords as a cross-check.
 * Each review is then assigned to its highest-overlap topic.
 
@@ -159,8 +159,8 @@ clustering algorithm) without touching the rest of the system.
 
 * For each persona, the LLM produces `n_variants_per_persona`
   candidates across the persona's preferred channels, with fields
-  `headline`, `body`, `hashtags`, `predicted_ctr`, `rationale`.
-* Budget share per channel is computed as the average predicted CTR
+  `headline`, `body`, `hashtags`, `simulated_ctr`, `rationale`.
+* Budget share per channel is computed as the average simulated CTR
   normalised to 1.
 
 ## 5. Evaluation

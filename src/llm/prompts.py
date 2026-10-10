@@ -97,7 +97,7 @@ class PromptLibrary:
         "- headline（不超过 18 字）\n"
         "- body（不超过 80 字）\n"
         "- hashtags（数组，3-5 个）\n"
-        "- predicted_ctr（0-1 之间的小数，基于经验估计）\n"
+        "- simulated_ctr（0-1 之间的小数，模拟点击率，仅作渠道相对权重）\n"
         "- rationale（一句话解释为什么这个人群会点开）\n\n"
         "严格以 JSON 数组输出。"
     )

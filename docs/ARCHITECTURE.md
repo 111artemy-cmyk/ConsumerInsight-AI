@@ -89,14 +89,14 @@ pipeline.py
 | 层 | 输入 | 输出 |
 |---|---|---|
 | 数据层 | (CSV / synthetic) | DataFrame (review_id, platform, user_id, product, rating, text, timestamp, user_age_band, user_segment) |
-| 情感层 | DataFrame | DataFrame (+overall, product_quality, value_for_money, packaging_design, skin_feel, long_wear, service_experience) |
+| 情感层 | DataFrame | DataFrame (+overall, Product Quality, Value for Money, Packaging Design, Skin Feel, Long Wear, Service Experience) |
 | 主题层 | DataFrame | topics (topic_id, topic_label_cn, description, representative_keywords, share_estimate) |
 | Persona 层 | DataFrame | personas (persona_id, nickname, age_range, occupation, core_need, pain_points, preferred_channels, recommended_campaign_angle, sample_message) |
 | 细分层 | DataFrame | assignments (review_id, cluster_id, ...) + segment_profile |
 | 趋势层 | DataFrame | weekly_stats (week, volume, avg_sentiment, slope, direction) |
 | 漏斗层 | DataFrame | stage_counts (stage, count, conversion_from_prev) |
 | ROI 层 | DataFrame | segment_roi (cluster_id, predicted_soft_conversion, expected_revenue, expected_cost, expected_roi) |
-| 文案层 | personas | creatives (variant_id, channel, headline, body, hashtags, predicted_ctr, rationale) |
+| 文案层 | personas | creatives (variant_id, channel, headline, body, hashtags, simulated_ctr, rationale) |
 
 ## 5. 失败容忍策略
 

@@ -58,12 +58,14 @@ def main() -> int:
 
     # Keep README's Evaluation table in sync with the just-produced pipeline
     # run. Without this, README and pipeline_report drift apart across runs.
-    n_updated = sync_readme_evaluation_table(
-        ROOT / "README.md",
-        clustering_eval=artifacts.clustering_eval,
-        sentiment_rating_eval=artifacts.sentiment_rating_eval,
-        roi_cv_eval=artifacts.roi_cv_eval,
-    )
+    n_updated = 0
+    for readme_name in ("README.md", "README.zh.md"):
+        n_updated += sync_readme_evaluation_table(
+            ROOT / readme_name,
+            clustering_eval=artifacts.clustering_eval,
+            sentiment_rating_eval=artifacts.sentiment_rating_eval,
+            roi_cv_eval=artifacts.roi_cv_eval,
+        )
     print(f"  README synced    : {n_updated} evaluation cells updated")
     return 0
 

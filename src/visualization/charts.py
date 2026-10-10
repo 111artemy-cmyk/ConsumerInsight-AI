@@ -1,4 +1,4 @@
-﻿"""Reusable matplotlib chart helpers.
+"""Reusable matplotlib chart helpers.
 
 Every function follows the same pattern:
 
@@ -230,7 +230,7 @@ def plot_topic_share(
     topics: pd.DataFrame,
     out_path: Path,
     title: str = "Core Discussion Topics (LLM + TF-IDF Cross-Check)",
-    subtitle: str = "Five themes automatically extracted from consumer reviews",
+    subtitle: str = "Six themes automatically extracted from consumer reviews",
     n_reviews: Optional[int] = None,
 ) -> Path:
     # 兼容真实 LLM 输出字段差异：real LLM（OpenAI / GLM / DeepSeek）未必给出

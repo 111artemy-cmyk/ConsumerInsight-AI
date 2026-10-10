@@ -112,7 +112,7 @@ if section == "1. 项目概览":
         3. **TF-IDF + LLM 协同的主题建模**，每个主题带营销标签与代表关键词；
         4. **KMeans + LLM Persona 合成**，把聚类结果翻译为可执行的人群画像；
         5. **软漏斗 + 复购代理信号 + Ridge 回归**得到细分群 ROI 估算；
-        6. 针对每个 Persona 生成**多渠道营销文案**并附预测 CTR 与预算建议。
+        6. 针对每个 Persona 生成**多渠道营销文案**并附模拟点击率（simulated_ctr）与预算建议。
         """
     )
     cols = st.columns(3)
@@ -228,9 +228,9 @@ elif section == "10. 方法说明":
         → LLM 合成 Persona 卡片（昵称/年龄/痛点/渠道/文案样例）。
 
         **ROI 预估**：基于情感/评分/复购意愿构建"软转化"代理指标，
-        用 Ridge 回归得到各细分群的可解释 ROI 与 95% 置信区间。
+        用 Ridge 回归得到各细分群的示意性 ROI 指数（非真实业务 KPI）。
 
         **营销文案**：每个 Persona × 多渠道 × 多版本，
-        输出包含 headline / body / hashtags / predicted_ctr / rationale。
+        输出包含 headline / body / hashtags / simulated_ctr / rationale。
         """
     )

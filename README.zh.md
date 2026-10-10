@@ -31,13 +31,13 @@
 |---|---|---|---|
 | 处理评论数 | **1500** | 1500 (固定) | `pipeline_report.md` |
 | 受众细分群 (KMeans, k 固定) | **4** | 4 (固定) | `pipeline_report.md` §2 |
-| 最大细分群占比 (%) | **41.6**（segment 2） | **35.78 ± 3.56**（区间 32.87–42.67） | `pipeline_report.md` §2 / `stability_report.md` |
+| 最大细分群占比 (%) | **41.2**（segment 0） | **36.45 ± 4.36**（区间 32.27–43.40） | `pipeline_report.md` §2 / `stability_report.md` |
 | 消费者 Persona | **4** | 4 (固定) | `pipeline_report.md` §4 |
-| 核心话题 | **5** | 5 (固定) | `pipeline_report.md` §3 |
+| 核心话题 | **6** | 6 (固定) | `pipeline_report.md` §3 |
 | 营销文案候选 | **12**（3 渠道 × 4 persona） | 12 (固定) | `pipeline_report.md` §7 |
-| **示意性 ROI 指数** 峰值 | **+7.901** | **7.867 ± 0.046**（区间 7.799–7.959） | `pipeline_report.md` §6 / `stability_report.md` |
-| **示意性 ROI 指数** 峰值 segment | **0** | **0** (5/10 seeds)；3 (2/10)；1 (2/10)；2 (1/10) | `stability_report.md` |
-| **软漏斗** 最差阶段留存率 | **0.409** | **0.401 ± 0.018**（区间 0.375–0.425） | `pipeline_report.md` §5 / `stability_report.md` |
+| **示意性 ROI 指数** 峰值 | **+7.889** | **7.858 ± 0.031**（区间 7.797–7.891） | `pipeline_report.md` §6 / `stability_report.md` |
+| **示意性 ROI 指数** 峰值 segment | **2** | **1** (4/10 seeds)；2 (3/10)；0 (2/10)；3 (1/10) | `stability_report.md` |
+| **软漏斗** 最差阶段留存率 | **0.400** | **0.406 ± 0.023**（区间 0.383–0.453） | `pipeline_report.md` §5 / `stability_report.md` |
 | **软漏斗** 最差阶段 | **`05_Repurchase`** | **`05_Repurchase` (10/10 seeds)** | `pipeline_report.md` §5 / `stability_report.md` |
 | **模拟点击率** 区间 | uniform `[0.04, 0.09)` | 同上 | `pipeline_report.md` §7 |
 | 可视化图表 | **7 张**（`outputs/figures/`） | n/a | `outputs/figures/*.png` |
@@ -56,7 +56,7 @@
 * **默认 LLM 是基于规则的 Mock。** 复现本 README 中任何数字不需要 API key。Mock 客户端用一个小型词典 + 强化/否定修饰规则实现（见 `src/llm/mock_client.py`），它**不是**真实 LLM 的替代品，是一个确定性的离线基线。任何本仓库中以"the LLM..."开头的句子都指代"当前配置的 LLM"——默认是 Mock。
 * **"ROI" 是 *示意性* ROI 指数。** 它由 `sigmoid(overall + 0.6·high_rating + 0.3·long_text + 0.2·repurchase_intent)` 与 `src/config.py::ROIConfig` 里的成本/收入假设共同计算（默认 ARPU=¥120、CAC=¥5、baseline gate=0.5）。它**不是**营销花费回报的测度，是一个教学工件，使 segment 聚合步骤有数字可输出。
 * **"漏斗" 是 *软* 漏斗。** 5 个阶段（Awareness → Interest → Trial → Satisfaction → Repurchase）由 `src/funnel_analyzer.py` 中的关键词规则从评论文本推断。没有曝光、点击、订单。漏斗图与报告中都明确标注 `Soft funnel — inferred from review text + rating, not real behavioural conversion`。
-* **聚类可能反映合成模板结构，而非真实人群。** KMeans 跑在 `TF-IDF(2,3 char-wb) + OneHot(platform, age_band) + rating` 之上，**k = 4 预先固定**。seed=42 单次运行的 silhouette score 为 **0.15**、ARI / NMI vs 合成器的 `user_segment` 分别为 **0.05 / 0.07**——4 个聚类分离度很弱，**不能**还原 4 个合成 segment；贴在它们上面的"persona" 是这些弱聚类的描述，不是经过验证的消费者类型。即使 ARI / NMI 很高也是循环验证，因为 `user_segment` 本身就是合成的。
+* **聚类可能反映合成模板结构，而非真实人群。** KMeans 跑在 `TF-IDF(2,4 char-wb) + OneHot(platform, age_band) + rating` 之上，**k = 4 预先固定**。seed=42 单次运行的 silhouette score 为 **≈0.15**、ARI / NMI vs 合成器的 `user_segment` 分别为 **≈0.18 / ≈0.27**——4 个聚类分离度很弱，**不能**还原 4 个合成 segment；贴在它们上面的"persona" 是这些弱聚类的描述，不是经过验证的消费者类型。即使 ARI / NMI 很高也是循环验证，因为 `user_segment` 本身就是合成的。
 * **"Simulated CTR" 是均匀随机采样。** 渠道级 `simulated_ctr` 从 `Uniform[0.04, 0.09)` 采样，由 `MockLLMClient._compose_campaign` 生成。它让渠道预算分配步骤有一个相对权重的输入，**不是**真实 CTR 预测。
 * **没有部署公开 Demo。** Streamlit dashboard 在本地运行。如需发布你的 fork，按 [Deploy](#-deploy) 步骤走。README **不会**声称已有托管 Demo。
 
@@ -215,7 +215,7 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 ### What it does（8 步 + 1 评估层）
 
 1. **多维度情感评分** — 6 个产品体验维度（`Product Quality`、`Value for Money`、`Packaging Design`、`Skin Feel`、`Long Wear`、`Service Experience`；见 [情感维度 vs. 主题](#情感维度-vs-主题)）
-2. **主题提取** — 5 个主题，LLM + TF-IDF 交叉验证（`包装设计`、`上脸肤感与持久度`、`性价比`、`色号与妆效`、`敏感肌与刺激`、`物流与服务`；见 [情感维度 vs. 主题](#情感维度-vs-主题)）
+2. **主题提取** — 6 个主题，LLM + TF-IDF 交叉验证（`包装设计`、`上脸肤感与持久度`、`性价比`、`色号与妆效`、`敏感肌与刺激`、`物流与服务`；见 [情感维度 vs. 主题](#情感维度-vs-主题)）
 3. **Persona 生成** — 4 张画像，KMeans + LLM
 4. **受众细分** — KMeans on TF-IDF + 行为特征
 5. **趋势检测** — 周度聚合 + 线性回归斜率
@@ -230,7 +230,7 @@ Pipeline 自带一个交互式 Streamlit dashboard，sidebar **10 个 section**�
 
 Pipeline 输出两种很容易混淆的不同概念产物：
 
-| 情感维度（6 个，定义在 `src/config.py::SENTIMENT_DIMENSIONS`） | 核心主题（5 个，由 `TopicModeler` 输出） |
+| 情感维度（6 个，定义在 `src/config.py::SENTIMENT_DIMENSIONS`） | 核心主题（6 个，由 `TopicModeler` 输出） |
 |---|---|
 | `Product Quality` — 产品质量（粉质、服帖度、持妆力） | `包装设计` — 视觉设计与国风文化表达 |
 | `Value for Money` — 性价比（价格、促销、赠品） | `上脸肤感与持久度` — 服帖度与全天持妆 |
@@ -279,7 +279,7 @@ ConsumerInsight-AI/
 │   ├── pipeline.py               # 主流程编排
 │   ├── data_loader.py            # 数据加载 / 合成
 │   └── config.py                 # 全局配置（含 ROIConfig）
-└── tests/                        # 单元测试（pytest，27 个测试）
+└── tests/                        # 单元测试（pytest，46 个测试）
 ```
 
 ---
@@ -375,7 +375,7 @@ python scripts\run_pipeline.py
                │
                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│ 2. 主题建模 (LLM + TF-IDF 交叉验证) ─ 5 个核心话题                │
+│ 2. 主题建模 (LLM + TF-IDF 交叉验证) ─ 6 个核心话题                │
 └──────────────┬───────────────────────────────────────────────────┘
                │
                ▼
@@ -413,14 +413,14 @@ python scripts\run_pipeline.py
 
 | 指标（seed=42） | 数值 | 如何读它 |
 |---|---|---|
-| Silhouette score | **+0.1507** | 聚类分离度很弱。这个值通常被解读为"几乎没有真正的 cluster 结构"。 |
-| ARI vs 合成 `user_segment` | **+0.0467** | 接近零：聚类与合成器的 segment 标签几乎不对齐。`user_segment` 本身也是合成的，所以这个检验是循环的。 |
-| NMI vs 合成 `user_segment` | **+0.0664** | 同 ARI。 |
-| Pearson 情感 ↔ 评分 | **+0.8327** | 高，但情感和评分共用同一词典，所以只证明"内部自洽"。 |
-| Spearman 情感 ↔ 评分 | **+0.7820** | 同上。 |
-| ROI 5-fold CV R²（per-review proxy） | **+0.9793** | 预期之内，并不惊人：proxy 是输入特征的确定性函数。 |
-| ROI CV MAE | **0.3180** | 同上说明。 |
-| LLM ↔ TF-IDF 关键词重合率 | 见 `pipeline_report.md` §8 | TF-IDF n-grams 中同时出现在 LLM 关键词中的比例。 |
+| Silhouette score | **+0.1537** | 聚类分离度很弱。这个值通常被解读为"几乎没有真正的 cluster 结构"。 |
+| ARI vs 合成 `user_segment` | **+0.1767** | 对齐较弱：聚类只能部分还原合成器的 segment 标签。`user_segment` 本身也是合成的，所以这个检验是循环的。 |
+| NMI vs 合成 `user_segment` | **+0.2662** | 同 ARI。 |
+| Pearson 情感 ↔ 评分 | **+0.8269** | 高，但情感和评分共用同一词典，所以只证明"内部自洽"。 |
+| Spearman 情感 ↔ 评分 | **+0.7689** | 同上。 |
+| ROI 5-fold CV R²（per-review proxy） | **+0.9807** | 预期之内，并不惊人：proxy 是输入特征的确定性函数。 |
+| ROI CV MAE | **0.3058** | 同上说明。 |
+| LLM ↔ TF-IDF 关键词重合率 | 见 `pipeline_report.md` §8 | TF-IDF 关键词（jieba 分词）中同时出现在 LLM 关键词中的比例。 |
 | 多 seed 稳定性 | 见 [项目一览](#-project-at-a-glance) | 10 个 seed 下头部指标的 mean / std / min / max。 |
 
 **这些数字在说什么。** 情感和 ROI 模块**在构造上**就是自洽的；而聚类模块很弱。固定 k=4 并把合成器的 segment 标签当真值参考，并不能证明四个"细分群"是真实有效的（见 [Limitations](#-limitations诚实声明)）。
@@ -443,7 +443,7 @@ python scripts/run_stability_eval.py --n-seeds 5 --n-reviews 500
 ## 🔧 工程化 & CI
 
 * **`pyproject.toml`** — package 元数据 + setuptools 自动发现；源码可 `pip install -e .` 安装。
-* **`tests/`** — 27 个 pytest 测试（5 segmentation + 6 funnel + 4 ROI + 3 campaign + 3 sentiment + 13 evaluation）。运行 `python -m pytest tests/ -q`。
+* **`tests/`** — 46 个 pytest 测试（1 segmentation + 4 funnel + 3 ROI + 3 campaign + 2 sentiment + 22 evaluation + 1 pipeline + 10 readme-sync）。运行 `python -m pytest tests/ -q`。
 * **`.github/workflows/ci.yml`** — Python 3.10 / 3.11 matrix CI：装包 → 跑测试 → 跑一次 smoke `run_pipeline.py`。README 顶部的 CI 徽章实时显示最新状态。
 * **`requirements.txt`** — 主要依赖固定到主/次版本号（`pandas>=2.0`、`numpy>=1.24`、`scikit-learn>=1.3`、`matplotlib>=3.7`、`streamlit>=1.28`、`openai>=1.0`、`jieba>=0.42`、`tabulate>=0.9`）。
 * **可复现性** — `src/config.py` 里 `RANDOM_SEED = 42`；`MockLLMClient` 用 MD5 派生 stable seed（跨进程确定性）。

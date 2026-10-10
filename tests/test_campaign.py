@@ -60,9 +60,9 @@ def test_campaign_generator_produces_n_personas_x_n_variants_rows():
         "通勤奶油肌Lisa",
         "成分党小美",
     }
-    # predicted_ctr column must exist and be a numeric range
-    assert "predicted_ctr" in result.creatives.columns
-    ctrs = result.creatives["predicted_ctr"].astype(float)
+    # simulated_ctr column must exist and be a numeric range
+    assert "simulated_ctr" in result.creatives.columns
+    ctrs = result.creatives["simulated_ctr"].astype(float)
     assert ctrs.between(0.0, 1.0).all()
 
 

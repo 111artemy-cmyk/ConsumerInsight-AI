@@ -10,7 +10,7 @@
 ----
 每条 Persona 对应多渠道、多版本的文案候选，并附带：
 
-* predicted_ctr        : 预测点击率
+* simulated_ctr       : 模拟点击率（非真实预测，仅作渠道相对权重）
 * rationale            : 选择该渠道的理由
 * recommended_budget   : 建议预算分配（占总预算比例）
 """
@@ -75,13 +75,13 @@ class CampaignGenerator:
 
         creatives_df = pd.DataFrame(all_creatives)
 
-        # Budget plan: weight by predicted CTR
-        if not creatives_df.empty and "predicted_ctr" in creatives_df.columns:
+        # Budget plan: weight by simulated CTR
+        if not creatives_df.empty and "simulated_ctr" in creatives_df.columns:
             budget = (
-                creatives_df.groupby("channel")["predicted_ctr"]
+                creatives_df.groupby("channel")["simulated_ctr"]
                 .mean()
                 .reset_index()
-                .rename(columns={"predicted_ctr": "avg_ctr"})
+                .rename(columns={"simulated_ctr": "avg_ctr"})
             )
             total = budget["avg_ctr"].sum() or 1.0
             budget["budget_share"] = (budget["avg_ctr"] / total).round(3)

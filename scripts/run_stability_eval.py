@@ -16,7 +16,7 @@ Output
 This script is intentionally a **separate entry point** from
 ``run_pipeline.py``: the main pipeline stays at ~5-10s, while this
 script trades runtime for stability information. Default 10 seeds ×
-1500 reviews takes ~1-2 minutes on a typical laptop.
+1500 reviews takes ~20-30 seconds on a typical laptop.
 
 Usage
 -----

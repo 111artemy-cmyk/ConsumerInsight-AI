@@ -15,7 +15,7 @@
 - **主办单位**：UM **Centre for Data Science**（CDS）
 - **合作学院**：Faculty of Science and Technology（FST）+ 跨学院（如 Marketing Analytics 跟 FBA 合作）
 - **学分**：30 学分（4 门必修 12 学分 + 方向课 12 学分 + 项目报告 6 学分）
-- **方向数**：**9 个方向**（不只是 2 个）——
+- **方向数**：**8 个方向**（不只是 2 个）——
   - Artificial Intelligence Applications
   - Marketing Analytics
   - Financial Technology
