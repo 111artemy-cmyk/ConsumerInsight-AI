@@ -68,8 +68,7 @@ These limitations are also documented in `docs/TECHNICAL_REPORT.md` §6 and rend
 
 ## 👋 About this project
 
-Built by **Xintong Wang** (王欣桐) as a portfolio piece for the **University of Macau — Master of Science in Data Science** programme (AI track + Marketing Analytics track).
-
+Built by **Xintong Wang** (王欣桐) as a portfolio piece.
 The author is a sociology graduate with no prior Python or marketing experience at the start of the project. The goal was to re-implement a typical consumer-research workflow (sentiment → segmentation → funnel → ROI → copy) as a reproducible, LLM-augmented pipeline with enough documentation that a non-CS reader can follow it.
 
 > **Brand-name disclaimer.** The synthetic review corpus uses "花西子 Florasis" as the example brand voice so the generated text reads like real Chinese beauty reviews. **This project is not affiliated with, endorsed by, or related to the real Florasis / 花西子 brand** — the name is a stylistic placeholder only, and all outputs are derived from synthetic data, not statements about the real brand. See the disclaimer block in `src/config.py::IndustryConfig` for the same statement in code.
