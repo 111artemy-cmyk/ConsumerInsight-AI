@@ -174,7 +174,7 @@ def plot_sentiment_by_segment(
     ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=9, color="#666", style="italic")
     ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12),
               ncol=min(3, n_dim), frameon=False, fontsize=8)
-    _add_source(fig, _source_line(n_reviews, "KMeans segments × sentiment dimensions"))
+    _add_source(fig, _source_line(n_reviews, "synthetic user_segment × sentiment dimensions"))
     return _save(fig, out_path)
 
 

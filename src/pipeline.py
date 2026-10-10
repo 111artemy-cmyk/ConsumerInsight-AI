@@ -16,7 +16,6 @@ from .config import (
     FIGURES_DIR,
     IndustryConfig,
     PROCESSED_DATA_DIR,
-    PROJECT_ROOT,
     RANDOM_SEED,
     REPORTS_DIR,
     ROIConfig,
@@ -254,23 +253,15 @@ def run_full_pipeline(
             print(f"[evaluation] ROI CV eval skipped: {exc}")
 
     # ----- Step 13: report -------------------------------------------
-    # 把 figures 路径转成相对路径（相对于 PROJECT_ROOT，即项目根），
-    # 这样报告里写出的图片引用永远是 ``outputs/figures/xx.png``，
-    # 与 README 中的引用风格保持一致；不会因运行机器不同而出现绝对路径，
-    # 也不会泄露本地用户名。
-    report_base = PROJECT_ROOT
-    relative_figures: Dict[str, Path] = {}
-    for _fig_key, _fig_path in figures.items():
-        try:
-            relative_figures[_fig_key] = _fig_path.relative_to(report_base)
-        except ValueError:
-            # 兜底：figures 路径不在 PROJECT_ROOT 下（用户传 --out 到别处），
-            # 退回到相对于 reports 父目录；如果还不行，就保留原值。
-            try:
-                relative_figures[_fig_key] = _fig_path.relative_to(out_rep.parent)
-            except ValueError:
-                relative_figures[_fig_key] = _fig_path
-    figures = relative_figures
+    # 报告位于 outputs/reports/，图片位于 outputs/figures/，二者是兄弟目录，
+    # 所以报告里的图片引用必须写成 ``../figures/xx.png``（相对报告文件本身），
+    # 否则 GitHub 会把 ``outputs/figures/xx.png`` 解析到
+    # outputs/reports/outputs/... 而 404。这里只生成一份「相对报告目录」的副本
+    # 用于写报告；``figures`` 本身仍保留绝对路径，供 Streamlit / 调用方使用。
+    report_figures: Dict[str, Path] = {
+        _key: Path("..") / _path.parent.name / _path.name
+        for _key, _path in figures.items()
+    }
 
     report_path = _write_markdown_report(
         out_path=out_rep / "pipeline_report.md",
@@ -284,7 +275,7 @@ def run_full_pipeline(
         funnel=funnel,
         roi=roi,
         campaigns=campaigns,
-        figures=figures,
+        figures=report_figures,
         clustering_eval=clustering_eval_obj,
         topic_agreement=topic_agreement_obj,
         sentiment_rating=sentiment_rating_obj,
@@ -365,7 +356,7 @@ def _write_markdown_report(
     a("")
     a("![情感按细分群分布]({})".format(figures["sentiment_by_segment"].as_posix()))
     a("")
-    a("> 上图展示了 6 个情感维度在 4 个细分群上的均分。配合下一节受众细分一起读，可以快速看到哪个细分群在哪个维度上偏高/偏低。")
+    a("> 上图按 4 个合成人群标签（user_segment：学生党 / 通勤族 / 成分党 / 精致妈妈）展示 6 个情感维度的均分；这与下一节由 KMeans 聚类得到的「受众细分」不同，阅读时请区分。")
     a("")
     a("## 2. 受众细分")
     a("")
