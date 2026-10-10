@@ -16,6 +16,7 @@ from .config import (
     FIGURES_DIR,
     IndustryConfig,
     PROCESSED_DATA_DIR,
+    PROJECT_ROOT,
     RANDOM_SEED,
     REPORTS_DIR,
     ROIConfig,
@@ -253,6 +254,24 @@ def run_full_pipeline(
             print(f"[evaluation] ROI CV eval skipped: {exc}")
 
     # ----- Step 13: report -------------------------------------------
+    # 把 figures 路径转成相对路径（相对于 PROJECT_ROOT，即项目根），
+    # 这样报告里写出的图片引用永远是 ``outputs/figures/xx.png``，
+    # 与 README 中的引用风格保持一致；不会因运行机器不同而出现绝对路径，
+    # 也不会泄露本地用户名。
+    report_base = PROJECT_ROOT
+    relative_figures: Dict[str, Path] = {}
+    for _fig_key, _fig_path in figures.items():
+        try:
+            relative_figures[_fig_key] = _fig_path.relative_to(report_base)
+        except ValueError:
+            # 兜底：figures 路径不在 PROJECT_ROOT 下（用户传 --out 到别处），
+            # 退回到相对于 reports 父目录；如果还不行，就保留原值。
+            try:
+                relative_figures[_fig_key] = _fig_path.relative_to(out_rep.parent)
+            except ValueError:
+                relative_figures[_fig_key] = _fig_path
+    figures = relative_figures
+
     report_path = _write_markdown_report(
         out_path=out_rep / "pipeline_report.md",
         industry=industry,

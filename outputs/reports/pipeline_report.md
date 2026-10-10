@@ -10,7 +10,7 @@
 
 ## 1. 多维度情感概览
 
-![情感概览](D:/申请硕士/ConsumerInsight-AI/outputs/figures/01_sentiment_by_dimension.png)
+![情感概览](outputs/figures/01_sentiment_by_dimension.png)
 
 ### 维度均值表
 
@@ -25,7 +25,7 @@
 
 ## 2. 受众细分
 
-![细分占比](D:/申请硕士/ConsumerInsight-AI/outputs/figures/03_segment_share.png)
+![细分占比](outputs/figures/03_segment_share.png)
 
 ### 细分群画像表
 
@@ -38,7 +38,7 @@
 
 ## 3. 核心话题
 
-![话题占比](D:/申请硕士/ConsumerInsight-AI/outputs/figures/04_topic_share.png)
+![话题占比](outputs/figures/04_topic_share.png)
 
 | topic_id            | topic_label_cn   | description           | representative_keywords         |   share_estimate |
 |:--------------------|:-----------------|:----------------------|:--------------------------------|-----------------:|
@@ -60,9 +60,9 @@
 
 ## 5. 趋势与漏斗
 
-![趋势](D:/申请硕士/ConsumerInsight-AI/outputs/figures/05_weekly_trend.png)
+![趋势](outputs/figures/05_weekly_trend.png)
 
-![漏斗](D:/申请硕士/ConsumerInsight-AI/outputs/figures/06_funnel.png)
+![漏斗](outputs/figures/06_funnel.png)
 
 > 漏斗中转化率最低的阶段是 05_Repurchase (40.0%). 建议优先在该阶段加强内容/促销/客服干预。
 
@@ -70,7 +70,7 @@
 
 ## 6. 示意性 ROI 指数 (Illustrative ROI Index)
 
-![ROI](D:/申请硕士/ConsumerInsight-AI/outputs/figures/07_roi_by_segment.png)
+![ROI](outputs/figures/07_roi_by_segment.png)
 
 |   cluster_id |   volume |   avg_sentiment |   avg_rating |   predicted_soft_conversion |   expected_cost |   expected_revenue |   expected_roi |   illustrative_roi_index |
 |-------------:|---------:|----------------:|-------------:|----------------------------:|----------------:|-------------------:|---------------:|-------------------------:|
