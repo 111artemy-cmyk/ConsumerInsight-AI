@@ -23,6 +23,12 @@
 | Long Wear          |   0.0807667 |
 | Service Experience |   0.0307913 |
 
+### 情感按细分群分布
+
+![情感按细分群分布](outputs/figures/02_sentiment_by_segment.png)
+
+> 上图展示了 6 个情感维度在 4 个细分群上的均分。配合下一节受众细分一起读，可以快速看到哪个细分群在哪个维度上偏高/偏低。
+
 ## 2. 受众细分
 
 ![细分占比](outputs/figures/03_segment_share.png)
